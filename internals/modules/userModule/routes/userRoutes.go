@@ -8,6 +8,7 @@ import (
 
 type UserRouter struct {
 	userController userModule.UserController
+	test           string
 }
 
 func (ur *UserRouter) SetupRoutes(app *gin.Engine) {
@@ -20,7 +21,8 @@ func (ur *UserRouter) SetupRoutes(app *gin.Engine) {
 
 func NewUserRouter() *UserRouter {
 	return &UserRouter{
-		userController: *userModule.NewUserController(),
+		userController: userModule.UserControllers,
+		test:           "test",
 	}
 }
 

@@ -12,5 +12,5 @@ func main() {
 
 	setup.SetupAllRoutes(app)
 
-	app.Run(":3000")
+	app.Run(":8100")
 }

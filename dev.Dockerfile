@@ -19,7 +19,7 @@ RUN go install github.com/codegangsta/gin@latest
 COPY . .
 
 # Expose port 3000 for gin
-EXPOSE 8100
+EXPOSE 8080
 
 # Command to run the application with gin
-CMD ["gin", "run", "-p", "8100", "cmd/main.go"]
+CMD ["gin", "-p", "8080","-a","8100","-t","cmd","run",  "cmd/main.go"]
