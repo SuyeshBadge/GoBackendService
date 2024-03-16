@@ -1,9 +1,16 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	setup "backendService/internals/setup/app"
+
+	"github.com/gin-gonic/gin"
+)
 
 func main() {
 	app := gin.New()
+	app.Use(gin.Recovery())
 
-	app.Run(":8100")
+	setup.SetupAllRoutes(app)
+
+	app.Run(":3000")
 }
