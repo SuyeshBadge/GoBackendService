@@ -24,13 +24,11 @@ func (us *UserService) GetUser(id string) User {
 		},
 	}
 	var user User
-	println(users)
 	for _, u := range users {
-		println(u.name)
 		if u.name == id {
 			user = u
 		}
 	}
-	println(1234)
+	println(user.name)
 	return user
 }

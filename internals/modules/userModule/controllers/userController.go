@@ -13,8 +13,7 @@ type UserController struct {
 
 func (uc *UserController) GetUser(c *gin.Context) {
 	user := uc.userService.GetUser(c.Param("id"))
-	print(user)
-	c.JSON(200, (user))
+	c.JSON(200, user)
 }
 
 func NewUserController() *UserController {
