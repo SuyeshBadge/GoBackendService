@@ -14,7 +14,7 @@ services:
       context: .
       dockerfile: dev.Dockerfile # Specify the dev Dockerfile
     ports:
-      - "8100:8080"
+      - "8100:8100"
     volumes:
       - .:/app
     environment:

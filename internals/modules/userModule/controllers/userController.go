@@ -6,8 +6,8 @@ type UserController struct {
 	module string
 }
 
-func (this *UserController) GetUser(c *gin.Context) {
-	c.JSON(200, "This is user this ")
+func (uc *UserController) GetUser(c *gin.Context) {
+	c.JSON(200, "This is new user controller.")
 }
 
 func NewUserController() *UserController {

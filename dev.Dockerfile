@@ -13,13 +13,12 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 # Install gin for hot-reloading
-RUN go install github.com/codegangsta/gin@latest
+RUN go install github.com/cosmtrek/air@latest
 
 # Copy the source code into the container
 COPY . .
 
 # Expose port 3000 for gin
-EXPOSE 8080
+EXPOSE 8100
 
-# Command to run the application with gin
-CMD ["gin", "-p", "8080","-a","8100","-t","cmd","run",  "cmd/main.go"]
+CMD ["air", "-c", ".air.toml"]
