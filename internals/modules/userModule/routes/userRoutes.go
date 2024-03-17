@@ -15,7 +15,7 @@ func (ur *UserRouter) SetupRoutes(app *gin.Engine) {
 
 	userRouter := app.Group("api/v1/user")
 	{
-		userRouter.GET("/", ur.userController.GetUser)
+		userRouter.GET("/:id", ur.userController.GetUser)
 	}
 }
 

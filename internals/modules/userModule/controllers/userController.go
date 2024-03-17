@@ -1,13 +1,20 @@
 package userModule
 
-import "github.com/gin-gonic/gin"
+import (
+	userModule "backendService/internals/modules/userModule/services"
+
+	"github.com/gin-gonic/gin"
+)
 
 type UserController struct {
-	module string
+	userService userModule.UserService
+	module      string
 }
 
 func (uc *UserController) GetUser(c *gin.Context) {
-	c.JSON(200, "This is new user controller.")
+	user := uc.userService.GetUser(c.Param("id"))
+	print(user)
+	c.JSON(200, (user))
 }
 
 func NewUserController() *UserController {
