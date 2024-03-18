@@ -4,9 +4,9 @@ type UserService struct {
 }
 
 type User struct {
-	name   string
-	age    int
-	gender rune
+	Name   string `json:"name"`
+	Age    int    `json:"age"`
+	Gender string `json:"gender"`
 }
 
 func (us *UserService) GetUser(id string) User {
@@ -15,20 +15,20 @@ func (us *UserService) GetUser(id string) User {
 		{
 			"user1",
 			21,
-			'M',
+			"M",
 		},
 		{
 			"user2",
 			23,
-			'F',
+			"F",
 		},
 	}
 	var user User
 	for _, u := range users {
-		if u.name == id {
+
+		if u.Name == id {
 			user = u
 		}
 	}
-	println(user.name)
 	return user
 }

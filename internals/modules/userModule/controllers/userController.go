@@ -13,6 +13,7 @@ type UserController struct {
 
 func (uc *UserController) GetUser(c *gin.Context) {
 	user := uc.userService.GetUser(c.Param("id"))
+
 	c.JSON(200, user)
 }
 
