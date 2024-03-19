@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
@@ -50,22 +51,10 @@ func LoadConfig() {
 		log.Fatalf("Error loading .env file: %v", err)
 	}
 
-	// Set the environment variable prefix
-	viper.SetEnvPrefix("app")
-	viper.AutomaticEnv()
-
 	//set config file name
 	env := os.Getenv("APP_ENV")
 
 	fmt.Println("Loading config for environment: ", env)
-
-	if env == "dev" {
-		viper.SetConfigName("development")
-	} else if env == "prod" {
-		viper.SetConfigName("production")
-	} else {
-		viper.SetConfigName("default")
-	}
 
 	// Set the config file name
 	configDir, err := os.Getwd()
@@ -73,13 +62,28 @@ func LoadConfig() {
 		log.Fatalf("Error getting current directory: %v", err)
 	}
 	configDir = configDir + "/configs"
-
+	viper.SetConfigName("default")
+	viper.SetConfigType("json")
 	viper.AddConfigPath(configDir)
 
 	// Read the config file
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatalf("Error reading config file: %v", err)
 	}
+
+	if env == "development" {
+		viper.SetConfigName("development")
+	} else if env == "production" {
+		viper.SetConfigName("production")
+	} else {
+		viper.SetConfigName("default")
+	}
+
+	if err := viper.MergeInConfig(); err != nil {
+		log.Fatalf("Error merging %s config file: %v", env, err)
+	}
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	viper.AutomaticEnv()
 
 	// Unmarshal config values into struct
 	if err := viper.Unmarshal(&AppConfig); err != nil {

@@ -2,21 +2,23 @@ package main
 
 import (
 	setup "backendService/internals/setup/app"
-	"fmt"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
+	//Loading Configs
+	setup.LoadConfig()
+
+	gin.SetMode(setup.AppConfig.App.GinMode)
 	app := gin.New()
 	app.Use(gin.Recovery())
 
-	setup.LoadConfig()
-
-	fmt.Println("Starting the server...")
-	fmt.Print("Environment: ", setup.AppConfig.App.GinMode, "\n")
-
+	//Setting up routes
 	setup.SetupAllRoutes(app)
 
-	app.Run(":8100")
+	//Running the application
+	address := ":" + strconv.Itoa(setup.AppConfig.App.Port)
+	app.Run(address)
 }
