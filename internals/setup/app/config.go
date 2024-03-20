@@ -11,7 +11,7 @@ import (
 )
 
 // DBConfig holds the database configuration values
-type DBConfig struct {
+type Database struct {
 	Type     string `mapstructure:"type"`
 	Host     string `mapstructure:"host"`
 	Port     string `mapstructure:"port"`
@@ -28,20 +28,13 @@ type ApplicationConfig struct {
 	GinMode  string `mapstructure:"gin_mode"`
 }
 
-// Database holds the different database configurations
-type Database struct {
-	Postgres DBConfig `mapstructure:"postgres"`
-	MySQL    DBConfig `mapstructure:"mysql"`
-	SQLite   DBConfig `mapstructure:"sqlite"`
-}
-
 // Config holds the overall configuration
-type Config struct {
+type AppConfig struct {
 	Database Database          `mapstructure:"database"`
 	App      ApplicationConfig `mapstructure:"app"`
 }
 
-var AppConfig Config
+var Config AppConfig
 
 // LoadConfig loads the configuration from environment variables and config files
 func LoadConfig() {

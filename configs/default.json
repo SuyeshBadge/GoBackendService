@@ -1,25 +1,11 @@
 {
   "database": {
-    "postgres": {
-      "type": "postgres",
-      "host": "localhost",
-      "port": "5432",
-      "database": "default_db",
-      "username": "default_user",
-      "password": "default_password"
-    },
-    "mysql": {
-      "type": "mysql",
-      "host": "localhost",
-      "port": "3306",
-      "database": "default_db",
-      "username": "default_user",
-      "password": "default_password"
-    },
-    "sqlite": {
-      "type": "sqlite",
-      "database": "default_db.sqlite"
-    }
+    "type": "postgres",
+    "host": "localhost",
+    "port": "5432",
+    "database": "default_db",
+    "username": "default_user",
+    "password": "default_password"
   },
   "app": {
     "port": 8100,

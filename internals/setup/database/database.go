@@ -1,6 +1,7 @@
-package setup
+package database
 
 import (
+	setup "backendService/internals/setup/app"
 	"fmt"
 	"log"
 
@@ -55,4 +56,20 @@ func Connect(config *dbConfig) error {
 
 	log.Printf("Connected to database %s", config.dbName)
 	return nil
+}
+
+func InitializeDataBase(databaseType string) {
+	config := dbConfig{
+		dbType:     databaseType,
+		dbHost:     setup.Config.Database.Host,
+		dbPort:     setup.Config.Database.Port,
+		dbUser:     setup.Config.Database.Username,
+		dbPassword: setup.Config.Database.Password,
+		dbName:     setup.Config.Database.Database,
+	}
+
+	if err := Connect(&config); err != nil {
+		log.Fatal("Unable to connect database:", config.dbHost, ":", config.dbPort, "/", config.dbName)
+	}
+	fmt.Println("Database connected : ", config.dbName)
 }
