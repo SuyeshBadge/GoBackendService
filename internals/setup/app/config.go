@@ -79,7 +79,7 @@ func LoadConfig() {
 	viper.AutomaticEnv()
 
 	// Unmarshal config values into struct
-	if err := viper.Unmarshal(&AppConfig); err != nil {
+	if err := viper.Unmarshal(&Config); err != nil {
 		log.Fatalf("Unable to decode config into struct: %v", err)
 	}
 }
