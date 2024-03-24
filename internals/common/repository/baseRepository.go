@@ -38,27 +38,27 @@ func setBaseModelFields(model interface{}, baseModel *BaseModel) error {
 
 // BaseModel represents the base model for all entities in the repository.
 type BaseModel struct {
-	ID        uint64    `gorm:"primary_key"`
-	CreatedAt time.Time `gorm:"not null"`
-	UpdatedAt time.Time `gorm:"not null"`
-	IsDeleted bool      `gorm:"not null"`
-	DeletedAt gorm.DeletedAt
+	ID        uint64         `gorm:"primary_key"`
+	CreatedAt time.Time      `gorm:"not null"`
+	UpdatedAt time.Time      `gorm:"not null"`
+	IsDeleted bool           `gorm:"not null"`
+	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
+
+type Database = gorm.DB
 
 type Pagination struct {
 	Page     int
 	PageSize int
 }
 
-type Field map[interface{}]interface{}
-
 // BaseRepository is an abstract base repository that provides common functionality for interacting with the database
-type BaseRepository[Fields Field] struct {
+type BaseRepository[Fields any] struct {
 	db *gorm.DB
 }
 
 // NewBaseRepository creates a new BaseRepository instance
-func NewBaseRepository[Fields Field](db *gorm.DB) *BaseRepository[Fields] {
+func NewBaseRepository[Fields any](db *gorm.DB) *BaseRepository[Fields] {
 	return &BaseRepository[Fields]{db: db}
 }
 
@@ -79,8 +79,16 @@ func (r *BaseRepository[T]) Create(model *T) error {
 }
 
 // Update updates an existing record in the database by given filter
-func (r *BaseRepository[T]) Update(id string, fields Field) error {
-	return r.db.Model(&T{}).Where("id = ?", id).Updates(fields).Error
+func (r *BaseRepository[T]) Update(id string, fields any) error {
+	var record T
+	result := r.db.First(&record, "id = ?", id)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil
+		}
+		return result.Error
+	}
+	return r.db.Model(&record).Updates(fields).Error
 }
 
 // Delete soft deletes an existing record from the database by setting the flag isDeleted to true
@@ -150,15 +158,15 @@ func (r *BaseRepository[T]) FindAllBy(conditions map[string]interface{}, page, p
 }
 
 // FindOneBy finds one record in the database that matches the given conditions, filtering out records where isDeleted = true
-func (r *BaseRepository[T]) FindOneBy(conditions map[string]interface{}) (T, error) {
+func (r *BaseRepository[T]) FindOneBy(conditions map[string]interface{}) (*T, error) {
 	var record T
 	result := r.db.Where(conditions).Where("isDeleted = ?", false).First(&record)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
-		return record, result.Error
+		return nil, result.Error
 	}
 
-	return record, nil
+	return &record, nil
 }

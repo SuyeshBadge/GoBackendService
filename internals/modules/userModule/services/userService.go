@@ -1,34 +1,14 @@
 package userModule
 
+import userModule "backendService/internals/modules/userModule/repositories"
+
+// UserService is a struct that represents the service for the user model
 type UserService struct {
+	userRepository userModule.UserRepository
 }
 
-type User struct {
-	Name   string `json:"name"`
-	Age    int    `json:"age"`
-	Gender string `json:"gender"`
-}
-
-func (us *UserService) GetUser(id string) User {
-
-	var users = []User{
-		{
-			"user1",
-			21,
-			"M",
-		},
-		{
-			"user2",
-			23,
-			"F",
-		},
-	}
-	var user User
-	for _, u := range users {
-
-		if u.Name == id {
-			user = u
-		}
-	}
-	return user
+// NewUserService creates a new instance of UserService.
+// It takes a pointer to a UserRepository and returns a pointer to UserService.
+func NewUserService(userRepository userModule.UserRepository) *UserService {
+	return &UserService{userRepository: userRepository}
 }

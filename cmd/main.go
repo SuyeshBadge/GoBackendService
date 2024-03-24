@@ -2,6 +2,7 @@ package main
 
 import (
 	setup "backendService/internals/setup/app"
+	"backendService/internals/setup/database"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -16,7 +17,7 @@ func main() {
 	app.Use(gin.Recovery())
 
 	//Setup Database
-	// database.InitializeDataBase(setup.AppConfig.Database.Type)
+	database.InitializeDataBase(setup.Config.Database.Type)
 
 	//Setting up routes
 	setup.SetupAllRoutes(app)
