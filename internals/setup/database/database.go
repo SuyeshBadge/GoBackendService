@@ -54,7 +54,7 @@ func Connect(config *dbConfig) error {
 		return err
 	}
 
-	log.Printf("Connected to database %s", config.dbName)
+	log.Printf("Connected to database %s", Db.Name())
 	return nil
 }
 
@@ -71,5 +71,5 @@ func InitializeDataBase(databaseType string) {
 	if err := Connect(&config); err != nil {
 		log.Fatal("Unable to connect database:", config.dbHost, ":", config.dbPort, "/", config.dbName)
 	}
-	fmt.Println("Database connected : ", config.dbName)
+
 }

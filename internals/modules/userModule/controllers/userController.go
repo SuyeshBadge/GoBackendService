@@ -49,4 +49,13 @@ func (uc *User_Controller) CreateUser(c *gin.Context) {
 	}
 }
 
+func (uc *User_Controller) GetAllUsers(c *gin.Context) {
+	users, err := uc.userService.GetUsers()
+	if err != nil {
+		// Handle error
+		return
+	}
+	c.JSON(200, users)
+}
+
 var UserController *User_Controller = NewUserController(userModule.UserService)

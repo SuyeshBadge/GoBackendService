@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"backendService/internals/setup/database"
 	"errors"
 	"fmt"
 	"reflect"
@@ -13,6 +14,7 @@ const defaultPageSize = 10
 
 // BaseModel represents the base model for all entities in the repository.
 type BaseModel struct {
+	*gorm.Model
 	ID        uint64         `gorm:"primary_key"`
 	CreatedAt time.Time      `gorm:"not null"`
 	UpdatedAt time.Time      `gorm:"not null"`
@@ -21,7 +23,7 @@ type BaseModel struct {
 
 // BaseRepository is a generic repository that provides common database operations.
 type BaseRepository[T any] struct {
-	db        *gorm.DB
+	db        gorm.DB
 	tableName string
 }
 
@@ -30,16 +32,15 @@ type Database = *gorm.DB
 // NewBaseRepository creates a new instance of the BaseRepository with the specified database connection and table name.
 // It returns a pointer to the created BaseRepository.
 // The type parameter T represents the model type that the repository will operate on.
-func NewBaseRepository[T any](db *gorm.DB, tableName string) *BaseRepository[T] {
+func NewBaseRepository[T any](tableName string) *BaseRepository[T] {
 	// Create a new BaseRepository
 	repo := &BaseRepository[T]{
-		db:        db,
+		db:        *database.Db,
 		tableName: tableName,
 	}
-	fmt.Println("Database", db.Name())
 
 	// Set table name
-	// repo.db = db.Table(tableName)
+	// repo.db = database.Db.Table(tableName)
 
 	return repo
 }
@@ -123,6 +124,8 @@ func (r *BaseRepository[T]) FindByID(id uint64) (*T, error) {
 // The retrieved models are stored in the 'models' slice.
 // Returns an error if there was a problem executing the query.
 func (r *BaseRepository[T]) FindAll(page, pageSize int) ([]T, error) {
+	fmt.Println("GetUsers", r.db.Name())
+
 	if pageSize <= 0 {
 		pageSize = defaultPageSize
 	}

@@ -31,4 +31,21 @@ func (us *User_Service) CreateUser(createUserData CreateUserData) error {
 	return nil
 }
 
+func (us *User_Service) GetUserByID(id uint64) (*userModule.User, error) {
+	user, err := us.userRepository.FindUserByID(id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve user: %v", err)
+	}
+	return user, nil
+}
+
+// list of users
+func (us *User_Service) GetUsers() ([]userModule.User, error) {
+	users, err := us.userRepository.FindAll(1, 10)
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve users: %v", err)
+	}
+	return users, nil
+}
+
 var UserService = NewUserService(userModule.UserRepository)
