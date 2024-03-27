@@ -2,25 +2,51 @@ package userModule
 
 import (
 	userModule "backendService/internals/modules/userModule/services"
+	"encoding/json"
+	"log"
+
+	"io"
 
 	"github.com/gin-gonic/gin"
 )
 
-type UserController struct {
-	userService userModule.UserService
-	module      string
+type User_Controller struct {
+	userService *userModule.User_Service
 }
 
-func (uc *UserController) GetUser(c *gin.Context) {
+func (uc *User_Controller) GetUser(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"message": "Hello World",
 	})
 }
 
-func NewUserController() *UserController {
-	return &UserController{
-		module: "User",
+func NewUserController(userService *userModule.User_Service) *User_Controller {
+	return &User_Controller{
+		userService: userService,
 	}
 }
 
-var UserControllers UserController = *NewUserController()
+func (uc *User_Controller) CreateUser(c *gin.Context) {
+	body, err := io.ReadAll(io.Reader(c.Request.Body))
+	if err != nil {
+		// Handle error
+		return
+	}
+	defer c.Request.Body.Close()
+
+	// Parse request body into CreateUserData struct
+	var createData userModule.CreateUserData
+	if err := json.Unmarshal(body, &createData); err != nil {
+		// Handle error
+		return
+	}
+	log.Print(createData)
+
+	// Pass createData to UserService's CreateUser method
+	if err := uc.userService.CreateUser(createData); err != nil {
+		// Handle error
+		return
+	}
+}
+
+var UserController *User_Controller = NewUserController(userModule.UserService)

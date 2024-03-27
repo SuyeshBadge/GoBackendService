@@ -1,7 +1,7 @@
 package database
 
 import (
-	setup "backendService/internals/setup/app"
+	"backendService/internals/setup/config"
 	"fmt"
 	"log"
 
@@ -30,20 +30,20 @@ func (c *dbConfig) postgresDSN() string {
 		c.dbHost, c.dbUser, c.dbPassword, c.dbName, c.dbPort)
 }
 
-var db *gorm.DB
+var Db *gorm.DB
 
 func Connect(config *dbConfig) error {
 	var err error
 
 	switch config.dbType {
 	case "mysql":
-		db, err = gorm.Open(mysql.Open(config.mysqlDSN()), &gorm.Config{})
+		Db, err = gorm.Open(mysql.Open(config.mysqlDSN()), &gorm.Config{})
 
 	case "postgres":
-		db, err = gorm.Open(postgres.Open(config.postgresDSN()), &gorm.Config{})
+		Db, err = gorm.Open(postgres.Open(config.postgresDSN()), &gorm.Config{})
 
 	case "sqlite":
-		db, err = gorm.Open(sqlite.Open(config.dbName), &gorm.Config{})
+		Db, err = gorm.Open(sqlite.Open(config.dbName), &gorm.Config{})
 
 	default:
 		return fmt.Errorf("unsupported database type: %s", config.dbType)
@@ -61,11 +61,11 @@ func Connect(config *dbConfig) error {
 func InitializeDataBase(databaseType string) {
 	config := dbConfig{
 		dbType:     databaseType,
-		dbHost:     setup.Config.Database.Host,
-		dbPort:     setup.Config.Database.Port,
-		dbUser:     setup.Config.Database.Username,
-		dbPassword: setup.Config.Database.Password,
-		dbName:     setup.Config.Database.Database,
+		dbHost:     config.Config.Database.Host,
+		dbPort:     config.Config.Database.Port,
+		dbUser:     config.Config.Database.Username,
+		dbPassword: config.Config.Database.Password,
+		dbName:     config.Config.Database.Database,
 	}
 
 	if err := Connect(&config); err != nil {

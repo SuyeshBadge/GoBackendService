@@ -7,8 +7,7 @@ import (
 )
 
 type UserRouter struct {
-	userController userModule.UserController
-	test           string
+	userController *userModule.User_Controller
 }
 
 func (ur *UserRouter) SetupRoutes(app *gin.Engine) {
@@ -16,14 +15,14 @@ func (ur *UserRouter) SetupRoutes(app *gin.Engine) {
 	userRouter := app.Group("api/v1/user")
 	{
 		userRouter.GET("/:id", ur.userController.GetUser)
+		userRouter.POST("/", ur.userController.CreateUser)
 	}
 }
 
-func NewUserRouter() *UserRouter {
+func NewUserRouter(userController *userModule.User_Controller) *UserRouter {
 	return &UserRouter{
-		userController: userModule.UserControllers,
-		test:           "test",
+		userController: userController,
 	}
 }
 
-var UserRoutes *UserRouter = NewUserRouter()
+var UserRoutes *UserRouter = NewUserRouter(userModule.UserController)

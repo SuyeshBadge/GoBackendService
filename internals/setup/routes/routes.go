@@ -1,4 +1,4 @@
-package setup
+package routes
 
 import (
 	userModule "backendService/internals/modules/userModule/routes"

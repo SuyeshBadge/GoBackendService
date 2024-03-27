@@ -1,8 +1,10 @@
 package main
 
 import (
-	setup "backendService/internals/setup/app"
+	"backendService/internals/setup/config"
 	"backendService/internals/setup/database"
+	"backendService/internals/setup/routes"
+	"fmt"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -10,19 +12,20 @@ import (
 
 func main() {
 	//Loading Configs
-	setup.LoadConfig()
+	config.LoadConfig()
 
-	gin.SetMode(setup.Config.App.GinMode)
+	gin.SetMode(config.Config.App.GinMode)
 	app := gin.New()
 	app.Use(gin.Recovery())
 
 	//Setup Database
-	database.InitializeDataBase(setup.Config.Database.Type)
+	database.InitializeDataBase(config.Config.Database.Type)
 
+	fmt.Println("Database connected", database.Db.Name())
 	//Setting up routes
-	setup.SetupAllRoutes(app)
+	routes.SetupAllRoutes(app)
 
 	//Running the application
-	address := ":" + strconv.Itoa(setup.Config.App.Port)
+	address := ":" + strconv.Itoa(config.Config.App.Port)
 	app.Run(address)
 }
