@@ -3,7 +3,6 @@ package repository
 import (
 	"backendService/internals/setup/database"
 	"errors"
-	"fmt"
 	"reflect"
 	"time"
 
@@ -23,7 +22,7 @@ type BaseModel struct {
 
 // BaseRepository is a generic repository that provides common database operations.
 type BaseRepository[T any] struct {
-	db        *gorm.DB
+	Db        *gorm.DB
 	tableName string
 }
 
@@ -32,15 +31,15 @@ type Database = *gorm.DB
 // NewBaseRepository creates a new instance of the BaseRepository with the specified database connection and table name.
 // It returns a pointer to the created BaseRepository.
 // The type parameter T represents the model type that the repository will operate on.
-func NewBaseRepository[T any](tableName string) *BaseRepository[T] {
+func NewBaseRepository[T any](db *gorm.DB, tableName string) *BaseRepository[T] {
 	// Create a new BaseRepository
 	repo := &BaseRepository[T]{
-		db:        database.Db,
+		Db:        db,
 		tableName: tableName,
 	}
 
 	// Set table name
-	repo.db = database.Db.Table(tableName)
+	repo.Db = database.Db.Table(tableName)
 
 	return repo
 }
@@ -69,7 +68,7 @@ func (r *BaseRepository[T]) Create(model *T) error {
 		}
 	}
 
-	return r.db.Create(model).Error
+	return r.Db.Create(model).Error
 }
 
 // updatedAtField represents the field "UpdatedAt" in the modelValue struct.
@@ -82,7 +81,7 @@ func (r *BaseRepository[T]) Update(model *T) error {
 	if updatedAtField.IsValid() && updatedAtField.CanSet() {
 		updatedAtField.Set(reflect.ValueOf(now))
 	}
-	return r.db.Save(model).Error
+	return r.Db.Save(model).Error
 }
 
 // FindByID retrieves a record from the database based on the given ID.
@@ -91,7 +90,7 @@ func (r *BaseRepository[T]) Update(model *T) error {
 func (r *BaseRepository[T]) Delete(id uint64) error {
 	model := new(T)
 
-	err := r.db.First(model, id).Error
+	err := r.Db.First(model, id).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil
@@ -99,7 +98,7 @@ func (r *BaseRepository[T]) Delete(id uint64) error {
 		return err
 	}
 
-	return r.db.Delete(model).Error
+	return r.Db.Delete(model).Error
 }
 
 // FindByID retrieves a record from the database based on the given ID.
@@ -109,7 +108,7 @@ func (r *BaseRepository[T]) Delete(id uint64) error {
 func (r *BaseRepository[T]) FindByID(id uint64) (*T, error) {
 	var model T
 
-	err := r.db.Unscoped().First(&model, id).Error
+	err := r.Db.Unscoped().First(&model, id).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
@@ -124,7 +123,6 @@ func (r *BaseRepository[T]) FindByID(id uint64) (*T, error) {
 // The retrieved models are stored in the 'models' slice.
 // Returns an error if there was a problem executing the query.
 func (r *BaseRepository[T]) FindAll(page, pageSize int) ([]T, error) {
-	fmt.Println("GetUsers", r.db.Name())
 
 	if pageSize <= 0 {
 		pageSize = defaultPageSize
@@ -132,7 +130,7 @@ func (r *BaseRepository[T]) FindAll(page, pageSize int) ([]T, error) {
 
 	var models []T
 
-	err := r.db.Scopes(paginateScope(page, pageSize)).Find(&models).Error
+	err := r.Db.Scopes(paginateScope(page, pageSize)).Find(&models).Error
 	if err != nil {
 		return nil, err
 	}
@@ -145,7 +143,7 @@ func (r *BaseRepository[T]) FindAllBy(conditions map[string]interface{}, page, p
 	}
 
 	var models []T
-	err := r.db.Scopes(paginateScope(page, pageSize), func(db *gorm.DB) *gorm.DB {
+	err := r.Db.Scopes(paginateScope(page, pageSize), func(db *gorm.DB) *gorm.DB {
 		for key, value := range conditions {
 			db = db.Where(key, value)
 		}
@@ -159,7 +157,7 @@ func (r *BaseRepository[T]) FindAllBy(conditions map[string]interface{}, page, p
 
 func (r *BaseRepository[T]) FindOneBy(conditions map[string]interface{}) (*T, error) {
 	var model T
-	err := r.db.Scopes(func(db *gorm.DB) *gorm.DB {
+	err := r.Db.Scopes(func(db *gorm.DB) *gorm.DB {
 		for key, value := range conditions {
 			db = db.Where(key, value)
 		}

@@ -6,11 +6,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type UserRouter struct {
+type User_Router struct {
 	userController *controller.User_Controller
 }
 
-func (ur *UserRouter) SetupRoutes(app *gin.Engine) {
+func (ur *User_Router) SetupRoutes(app *gin.Engine) {
 
 	userRouter := app.Group("api/v1/user")
 	{
@@ -20,10 +20,8 @@ func (ur *UserRouter) SetupRoutes(app *gin.Engine) {
 	}
 }
 
-func NewUserRouter(userController *controller.User_Controller) *UserRouter {
-	return &UserRouter{
+func NewUserRouter(userController *controller.User_Controller) *User_Router {
+	return &User_Router{
 		userController: userController,
 	}
 }
-
-var UserRoutes *UserRouter = NewUserRouter(controller.UserController)

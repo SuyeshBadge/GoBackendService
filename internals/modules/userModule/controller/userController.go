@@ -58,5 +58,3 @@ func (uc *User_Controller) GetAllUsers(c *gin.Context) {
 	}
 	c.JSON(200, users)
 }
-
-var UserController *User_Controller = NewUserController(services.UserService)

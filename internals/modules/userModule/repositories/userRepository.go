@@ -2,7 +2,6 @@ package repository
 
 import (
 	"backendService/internals/common/repository"
-	"backendService/internals/setup/database"
 	"log"
 
 	"gorm.io/gorm"
@@ -20,20 +19,19 @@ type User struct {
 
 // UserRepository represents a repository for managing user data.
 type User_Repository struct {
-	repository.BaseRepository[User]
-	db *gorm.DB
+	*repository.BaseRepository[User]
 }
 
 // NewUserRepository creates a new instance of UserRepository.
 func NewUserRepository(db *gorm.DB) *User_Repository {
 	return &User_Repository{
-		db: db,
+		BaseRepository: repository.NewBaseRepository[User](db, "users"),
 	}
 }
 
 // CreateUser creates a new user in the database.
 func (ur *User_Repository) CreateUser(user *User) error {
-	if err := ur.db.Create(user).Error; err != nil {
+	if err := ur.Db.Create(user).Error; err != nil {
 		return err
 	}
 	return nil
@@ -42,28 +40,23 @@ func (ur *User_Repository) CreateUser(user *User) error {
 // FindUserByID retrieves a user by ID from the database.
 func (ur *User_Repository) FindUserByID(id uint64) (*User, error) {
 	var user User
-	if err := ur.db.First(&user, id).Error; err != nil {
+	if err := ur.Db.First(&user, id).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil
 }
 
-// GetUserRepository returns a new instance of UserRepository.
-func GetUserRepository() *User_Repository {
-	return NewUserRepository(database.Db)
-}
-
 // GetUsers retrieves a list of users from the database.
 func (ur *User_Repository) GetUsers() ([]User, error) {
 	var users []User
-	rows, err := ur.db.Model(&User{}).Select("*").Rows()
+	rows, err := ur.Db.Model(&User{}).Select("*").Rows()
 	if err != nil {
 		log.Print(err)
 		return nil, err
 	}
 	for rows.Next() {
 		var user User
-		ur.db.ScanRows(rows, &user)
+		ur.Db.ScanRows(rows, &user)
 		users = append(users, user)
 	}
 	return users, nil

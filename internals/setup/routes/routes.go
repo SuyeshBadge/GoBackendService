@@ -1,7 +1,7 @@
 package routes
 
 import (
-	userModule "backendService/internals/modules/userModule/routes"
+	"backendService/internals/modules/userModule"
 	"backendService/internals/setup/database"
 
 	"github.com/gin-gonic/gin"
@@ -14,5 +14,8 @@ func SetupAllRoutes(app *gin.Engine) {
 			"message": databaseName,
 		})
 	})
-	userModule.UserRoutes.SetupRoutes(app)
+
+	userModule.Initialize()
+	userModule.UserRouter.SetupRoutes(app)
+
 }

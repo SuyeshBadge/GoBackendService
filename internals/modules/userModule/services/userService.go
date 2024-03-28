@@ -47,5 +47,3 @@ func (us *User_Service) GetUsers() ([]repository.User, error) {
 	}
 	return users, nil
 }
-
-var UserService = NewUserService(repository.GetUserRepository())
