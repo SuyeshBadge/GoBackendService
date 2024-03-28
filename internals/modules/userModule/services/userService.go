@@ -48,4 +48,4 @@ func (us *User_Service) GetUsers() ([]userModule.User, error) {
 	return users, nil
 }
 
-var UserService = NewUserService(userModule.UserRepository)
+var UserService = NewUserService(userModule.GetUserRepository())

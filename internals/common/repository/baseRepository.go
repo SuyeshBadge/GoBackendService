@@ -23,7 +23,7 @@ type BaseModel struct {
 
 // BaseRepository is a generic repository that provides common database operations.
 type BaseRepository[T any] struct {
-	db        gorm.DB
+	db        *gorm.DB
 	tableName string
 }
 
@@ -35,12 +35,12 @@ type Database = *gorm.DB
 func NewBaseRepository[T any](tableName string) *BaseRepository[T] {
 	// Create a new BaseRepository
 	repo := &BaseRepository[T]{
-		db:        *database.Db,
+		db:        database.Db,
 		tableName: tableName,
 	}
 
 	// Set table name
-	// repo.db = database.Db.Table(tableName)
+	repo.db = database.Db.Table(tableName)
 
 	return repo
 }

@@ -31,19 +31,20 @@ func (c *dbConfig) postgresDSN() string {
 }
 
 var Db *gorm.DB
+var db *gorm.DB
 
 func Connect(config *dbConfig) error {
 	var err error
 
 	switch config.dbType {
 	case "mysql":
-		Db, err = gorm.Open(mysql.Open(config.mysqlDSN()), &gorm.Config{})
+		db, err = gorm.Open(mysql.Open(config.mysqlDSN()), &gorm.Config{})
 
 	case "postgres":
-		Db, err = gorm.Open(postgres.Open(config.postgresDSN()), &gorm.Config{})
+		db, err = gorm.Open(postgres.Open(config.postgresDSN()), &gorm.Config{})
 
 	case "sqlite":
-		Db, err = gorm.Open(sqlite.Open(config.dbName), &gorm.Config{})
+		db, err = gorm.Open(sqlite.Open(config.dbName), &gorm.Config{})
 
 	default:
 		return fmt.Errorf("unsupported database type: %s", config.dbType)
@@ -54,11 +55,13 @@ func Connect(config *dbConfig) error {
 		return err
 	}
 
-	log.Printf("Connected to database %s", Db.Name())
+	Db = db
+	log.Printf("Connected to database :: %s", Db.Name())
 	return nil
 }
 
-func InitializeDataBase(databaseType string) {
+func InitializeDataBase(databaseType string) error {
+	log.Println("Initializing database...")
 	config := dbConfig{
 		dbType:     databaseType,
 		dbHost:     config.Config.Database.Host,
@@ -70,6 +73,8 @@ func InitializeDataBase(databaseType string) {
 
 	if err := Connect(&config); err != nil {
 		log.Fatal("Unable to connect database:", config.dbHost, ":", config.dbPort, "/", config.dbName)
+		return err
 	}
-
+	log.Println("Database initialization completed.")
+	return nil
 }
