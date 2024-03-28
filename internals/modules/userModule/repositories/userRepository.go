@@ -1,4 +1,4 @@
-package userModule
+package repository
 
 import (
 	"backendService/internals/common/repository"

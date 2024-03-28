@@ -1,4 +1,4 @@
-package userModule
+package services
 
 type CreateUserData struct {
 	name     string

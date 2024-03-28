@@ -1,7 +1,8 @@
-package userModule
+package controller
 
 import (
-	userModule "backendService/internals/modules/userModule/services"
+	"backendService/internals/modules/userModule/services"
+
 	"encoding/json"
 	"log"
 
@@ -11,7 +12,7 @@ import (
 )
 
 type User_Controller struct {
-	userService *userModule.User_Service
+	userService *services.User_Service
 }
 
 func (uc *User_Controller) GetUser(c *gin.Context) {
@@ -20,7 +21,7 @@ func (uc *User_Controller) GetUser(c *gin.Context) {
 	})
 }
 
-func NewUserController(userService *userModule.User_Service) *User_Controller {
+func NewUserController(userService *services.User_Service) *User_Controller {
 	return &User_Controller{
 		userService: userService,
 	}
@@ -35,7 +36,7 @@ func (uc *User_Controller) CreateUser(c *gin.Context) {
 	defer c.Request.Body.Close()
 
 	// Parse request body into CreateUserData struct
-	var createData userModule.CreateUserData
+	var createData services.CreateUserData
 	if err := json.Unmarshal(body, &createData); err != nil {
 		// Handle error
 		return
@@ -58,4 +59,4 @@ func (uc *User_Controller) GetAllUsers(c *gin.Context) {
 	c.JSON(200, users)
 }
 
-var UserController *User_Controller = NewUserController(userModule.UserService)
+var UserController *User_Controller = NewUserController(services.UserService)

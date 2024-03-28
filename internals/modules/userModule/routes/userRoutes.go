@@ -1,13 +1,13 @@
 package userModule
 
 import (
-	userModule "backendService/internals/modules/userModule/controllers"
+	"backendService/internals/modules/userModule/controller"
 
 	"github.com/gin-gonic/gin"
 )
 
 type UserRouter struct {
-	userController *userModule.User_Controller
+	userController *controller.User_Controller
 }
 
 func (ur *UserRouter) SetupRoutes(app *gin.Engine) {
@@ -20,10 +20,10 @@ func (ur *UserRouter) SetupRoutes(app *gin.Engine) {
 	}
 }
 
-func NewUserRouter(userController *userModule.User_Controller) *UserRouter {
+func NewUserRouter(userController *controller.User_Controller) *UserRouter {
 	return &UserRouter{
 		userController: userController,
 	}
 }
 
-var UserRoutes *UserRouter = NewUserRouter(userModule.UserController)
+var UserRoutes *UserRouter = NewUserRouter(controller.UserController)

@@ -1,6 +1,7 @@
 package routes
 
 import (
+	userModule "backendService/internals/modules/userModule/routes"
 	"backendService/internals/setup/database"
 
 	"github.com/gin-gonic/gin"

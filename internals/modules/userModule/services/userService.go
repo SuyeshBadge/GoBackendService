@@ -1,23 +1,23 @@
-package userModule
+package services
 
 import (
-	userModule "backendService/internals/modules/userModule/repositories"
+	repository "backendService/internals/modules/userModule/repositories"
 	"fmt"
 )
 
 // UserService is a struct that represents the service for the user model
 type User_Service struct {
-	userRepository *userModule.User_Repository
+	userRepository *repository.User_Repository
 }
 
 // NewUserService creates a new instance of UserService.
 // It takes a pointer to a UserRepository and returns a pointer to UserService.
-func NewUserService(userRepository *userModule.User_Repository) *User_Service {
+func NewUserService(userRepository *repository.User_Repository) *User_Service {
 	return &User_Service{userRepository: userRepository}
 }
 
 func (us *User_Service) CreateUser(createUserData CreateUserData) error {
-	user := userModule.User{
+	user := repository.User{
 		Name:     createUserData.name,
 		Age:      createUserData.age,
 		Username: createUserData.username,
@@ -31,7 +31,7 @@ func (us *User_Service) CreateUser(createUserData CreateUserData) error {
 	return nil
 }
 
-func (us *User_Service) GetUserByID(id uint64) (*userModule.User, error) {
+func (us *User_Service) GetUserByID(id uint64) (*repository.User, error) {
 	user, err := us.userRepository.FindUserByID(id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve user: %v", err)
@@ -40,7 +40,7 @@ func (us *User_Service) GetUserByID(id uint64) (*userModule.User, error) {
 }
 
 // list of users
-func (us *User_Service) GetUsers() ([]userModule.User, error) {
+func (us *User_Service) GetUsers() ([]repository.User, error) {
 	users, err := us.userRepository.FindAll(1, 10)
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve users: %v", err)
@@ -48,4 +48,4 @@ func (us *User_Service) GetUsers() ([]userModule.User, error) {
 	return users, nil
 }
 
-var UserService = NewUserService(userModule.GetUserRepository())
+var UserService = NewUserService(repository.GetUserRepository())
