@@ -52,7 +52,7 @@ func (uc *User_Controller) CreateUser(c *gin.Context) {
 		// Handle error
 		return
 	}
-	log.Print(createData)
+	log.Println(createData)
 
 	// Pass createData to UserService's CreateUser method
 	if err := uc.userService.CreateUser(createData); err != nil {

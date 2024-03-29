@@ -1,9 +1,9 @@
 package services
 
 type CreateUserData struct {
-	name     string
-	age      int
-	username string
-	password string
-	mobile   string
+	Name     string
+	Age      int
+	Username string
+	Password string
+	Mobile   string
 }

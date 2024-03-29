@@ -24,6 +24,7 @@ type User_Repository struct {
 
 // NewUserRepository creates a new instance of UserRepository.
 func NewUserRepository(db *gorm.DB) *User_Repository {
+	db.Migrator().AutoMigrate(&User{})
 	return &User_Repository{
 		BaseRepository: repository.NewBaseRepository[User](db, "users"),
 	}

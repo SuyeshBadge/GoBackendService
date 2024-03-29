@@ -19,11 +19,11 @@ func NewUserService(userRepository *repository.User_Repository) *User_Service {
 
 func (us *User_Service) CreateUser(createUserData CreateUserData) error {
 	user := repository.User{
-		Name:     createUserData.name,
-		Age:      createUserData.age,
-		Username: createUserData.username,
-		Password: createUserData.password,
-		Mobile:   &createUserData.mobile,
+		Name:     createUserData.Name,
+		Age:      createUserData.Age,
+		Username: createUserData.Username,
+		Password: createUserData.Password,
+		Mobile:   &createUserData.Mobile,
 	}
 
 	if err := us.userRepository.CreateUser(&user); err != nil {

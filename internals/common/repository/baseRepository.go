@@ -14,10 +14,10 @@ const defaultPageSize = 10
 // BaseModel represents the base model for all entities in the repository.
 type BaseModel struct {
 	*gorm.Model
-	ID        uint64         `gorm:"primary_key"`
-	CreatedAt time.Time      `gorm:"not null"`
-	UpdatedAt time.Time      `gorm:"not null"`
-	DeletedAt gorm.DeletedAt `gorm:"index"`
+	ID        uint64         `gorm:"primary_key" json:"id"`
+	CreatedAt time.Time      `gorm:"not null" json:"createdAt"`
+	UpdatedAt time.Time      `gorm:"not null" json:"updatedAt"`
+	DeletedAt gorm.DeletedAt `gorm:"index" json:"deletedAt"`
 }
 
 // BaseRepository is a generic repository that provides common database operations.
@@ -37,13 +37,6 @@ func NewBaseRepository[T any](db *gorm.DB, tableName string) *BaseRepository[T] 
 		Db:        db,
 		tableName: tableName,
 	}
-
-	// // Create table if not exist
-	// db.AutoMigrate(&T{
-	// 	BaseModel: BaseModel{
-	// 		Model: &gorm.Model{},
-	// 	},
-	// })
 
 	// Set table name
 	repo.Db = database.Db.Table(tableName)
