@@ -38,12 +38,18 @@ func NewBaseRepository[T any](db *gorm.DB, tableName string) *BaseRepository[T] 
 		tableName: tableName,
 	}
 
+	// // Create table if not exist
+	// db.AutoMigrate(&T{
+	// 	BaseModel: BaseModel{
+	// 		Model: &gorm.Model{},
+	// 	},
+	// })
+
 	// Set table name
 	repo.Db = database.Db.Table(tableName)
 
 	return repo
 }
-
 func (r *BaseRepository[T]) Create(model *T) error {
 
 	// Set the BaseModel fields in the input model

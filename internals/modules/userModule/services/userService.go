@@ -3,6 +3,7 @@ package services
 import (
 	repository "backendService/internals/modules/userModule/repositories"
 	"fmt"
+	"strconv"
 )
 
 // UserService is a struct that represents the service for the user model
@@ -31,8 +32,12 @@ func (us *User_Service) CreateUser(createUserData CreateUserData) error {
 	return nil
 }
 
-func (us *User_Service) GetUserByID(id uint64) (*repository.User, error) {
-	user, err := us.userRepository.FindUserByID(id)
+func (us *User_Service) GetUserByID(id string) (*repository.User, error) {
+	num, err := strconv.ParseUint(id, 10, 64)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse user ID: %v", err)
+	}
+	user, err := us.userRepository.FindUserByID((num))
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve user: %v", err)
 	}

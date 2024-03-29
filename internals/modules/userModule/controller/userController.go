@@ -16,8 +16,19 @@ type User_Controller struct {
 }
 
 func (uc *User_Controller) GetUser(c *gin.Context) {
+	id := (c.Param("id"))
+	user, err := uc.userService.GetUserByID(id)
+	if err != nil {
+		// Handle error
+
+		c.JSON(404, gin.H{
+			"message": "User not found",
+		})
+		return
+	}
 	c.JSON(200, gin.H{
 		"message": "Hello World",
+		"user":    user,
 	})
 }
 
