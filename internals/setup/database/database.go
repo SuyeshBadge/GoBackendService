@@ -44,7 +44,7 @@ func Connect(config *dbConfig) error {
 		db, err = gorm.Open(postgres.Open(config.postgresDSN()), &gorm.Config{})
 
 	case "sqlite":
-		db, err = gorm.Open(sqlite.Open(config.dbName), &gorm.Config{})
+		db, err = gorm.Open(sqlite.Open(config.dbName+".sqlite"), &gorm.Config{})
 
 	default:
 		return fmt.Errorf("unsupported database type: %s", config.dbType)
@@ -55,8 +55,16 @@ func Connect(config *dbConfig) error {
 		return err
 	}
 
-	Db = db
+	Db = db.Debug()
 	log.Printf("Connected to database :: %s", Db.Name())
+
+	dbConnection, _ := Db.DB()
+
+	if err := dbConnection.Ping(); err != nil {
+		log.Printf("Failed to ping database: %v", err)
+		return err
+	}
+
 	return nil
 }
 

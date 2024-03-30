@@ -2,7 +2,7 @@ package repository
 
 import (
 	"backendService/internals/common/repository"
-	"log"
+	"errors"
 
 	"gorm.io/gorm"
 )
@@ -17,6 +17,8 @@ type User struct {
 	Mobile   *string `json:"mobile,omitempty"` // Mobile number of the user (optional)
 }
 
+var ErrUserNotFound = errors.New("user not found")
+
 // UserRepository represents a repository for managing user data.
 type User_Repository struct {
 	*repository.BaseRepository[User]
@@ -28,37 +30,4 @@ func NewUserRepository(db *gorm.DB) *User_Repository {
 	return &User_Repository{
 		BaseRepository: repository.NewBaseRepository[User](db, "users"),
 	}
-}
-
-// CreateUser creates a new user in the database.
-func (ur *User_Repository) CreateUser(user *User) error {
-	if err := ur.Db.Create(user).Error; err != nil {
-		return err
-	}
-	return nil
-}
-
-// FindUserByID retrieves a user by ID from the database.
-func (ur *User_Repository) FindUserByID(id uint64) (*User, error) {
-	var user User
-	if err := ur.Db.First(&user, id).Error; err != nil {
-		return nil, err
-	}
-	return &user, nil
-}
-
-// GetUsers retrieves a list of users from the database.
-func (ur *User_Repository) GetUsers() ([]User, error) {
-	var users []User
-	rows, err := ur.Db.Model(&User{}).Select("*").Rows()
-	if err != nil {
-		log.Print(err)
-		return nil, err
-	}
-	for rows.Next() {
-		var user User
-		ur.Db.ScanRows(rows, &user)
-		users = append(users, user)
-	}
-	return users, nil
 }

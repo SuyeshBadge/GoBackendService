@@ -2,6 +2,7 @@ package services
 
 import (
 	repository "backendService/internals/modules/userModule/repositories"
+	"errors"
 	"fmt"
 	"strconv"
 )
@@ -26,7 +27,7 @@ func (us *User_Service) CreateUser(createUserData CreateUserData) error {
 		Mobile:   &createUserData.Mobile,
 	}
 
-	if err := us.userRepository.CreateUser(&user); err != nil {
+	if err := us.userRepository.Create(&user); err != nil {
 		return fmt.Errorf("failed to create user: %v", err)
 	}
 	return nil
@@ -37,8 +38,11 @@ func (us *User_Service) GetUserByID(id string) (*repository.User, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse user ID: %v", err)
 	}
-	user, err := us.userRepository.FindUserByID((num))
+	user, err := us.userRepository.FindByID(num)
 	if err != nil {
+		if errors.Is(err, repository.ErrUserNotFound) {
+			return nil, err
+		}
 		return nil, fmt.Errorf("failed to retrieve user: %v", err)
 	}
 	return user, nil

@@ -13,11 +13,11 @@ const defaultPageSize = 10
 
 // BaseModel represents the base model for all entities in the repository.
 type BaseModel struct {
-	*gorm.Model
 	ID        uint64         `gorm:"primary_key" json:"id"`
 	CreatedAt time.Time      `gorm:"not null" json:"createdAt"`
 	UpdatedAt time.Time      `gorm:"not null" json:"updatedAt"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"deletedAt"`
+	IsDeleted bool           `gorm:"boolean" json:"isDeleted" default:"false"`
 }
 
 // BaseRepository is a generic repository that provides common database operations.
@@ -70,17 +70,11 @@ func (r *BaseRepository[T]) Create(model *T) error {
 	return r.Db.Create(model).Error
 }
 
-// updatedAtField represents the field "UpdatedAt" in the modelValue struct.
-// It is used to access and manipulate the value of the "UpdatedAt" field.
-func (r *BaseRepository[T]) Update(model *T) error {
-	now := time.Now()
-	modelValue := reflect.ValueOf(model).Elem()
+func (r *BaseRepository[T]) Update(filter any, update any) error {
+	//find the record with filter and update the record with update
+	model := new(T)
+	return r.Db.Model(model).Where(filter).Updates(update).Error
 
-	updatedAtField := modelValue.FieldByName("UpdatedAt")
-	if updatedAtField.IsValid() && updatedAtField.CanSet() {
-		updatedAtField.Set(reflect.ValueOf(now))
-	}
-	return r.Db.Save(model).Error
 }
 
 // FindByID retrieves a record from the database based on the given ID.
@@ -96,8 +90,21 @@ func (r *BaseRepository[T]) Delete(id uint64) error {
 		}
 		return err
 	}
+	//update the record to soft delete
+	now := time.Now()
+	modelValue := reflect.ValueOf(model).Elem()
 
-	return r.Db.Delete(model).Error
+	deletedAtField := modelValue.FieldByName("DeletedAt")
+	if deletedAtField.IsValid() && deletedAtField.CanSet() {
+		deletedAtField.Set(reflect.ValueOf(gorm.DeletedAt{Time: now}))
+	}
+
+	isDeletedField := modelValue.FieldByName("IsDeleted")
+	if isDeletedField.IsValid() && isDeletedField.CanSet() {
+		isDeletedField.Set(reflect.ValueOf(true))
+	}
+
+	return r.Db.Save(model).Error
 }
 
 // FindByID retrieves a record from the database based on the given ID.
@@ -107,7 +114,7 @@ func (r *BaseRepository[T]) Delete(id uint64) error {
 func (r *BaseRepository[T]) FindByID(id uint64) (*T, error) {
 	var model T
 
-	err := r.Db.Unscoped().First(&model, id).Error
+	err := r.Db.Scopes(AllowNonDeletedRecords).First(&model, id).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
@@ -129,7 +136,7 @@ func (r *BaseRepository[T]) FindAll(page, pageSize int) ([]T, error) {
 
 	var models []T
 
-	err := r.Db.Scopes(paginateScope(page, pageSize)).Find(&models).Error
+	err := r.Db.Scopes(paginateScope(page, pageSize), AllowNonDeletedRecords).Find(&models).Error
 	if err != nil {
 		return nil, err
 	}
@@ -180,4 +187,9 @@ func paginateScope(page, pageSize int) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Offset((page - 1) * pageSize).Limit(pageSize)
 	}
+}
+
+// Filter deleted records
+func AllowNonDeletedRecords(db *gorm.DB) *gorm.DB {
+	return db.Where("is_deleted = ?", false)
 }

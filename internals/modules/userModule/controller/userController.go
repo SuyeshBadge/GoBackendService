@@ -1,7 +1,9 @@
 package controller
 
 import (
+	repository "backendService/internals/modules/userModule/repositories"
 	"backendService/internals/modules/userModule/services"
+	"errors"
 
 	"encoding/json"
 	"log"
@@ -16,13 +18,18 @@ type User_Controller struct {
 }
 
 func (uc *User_Controller) GetUser(c *gin.Context) {
-	id := (c.Param("id"))
+	id := c.Param("id")
 	user, err := uc.userService.GetUserByID(id)
 	if err != nil {
-		// Handle error
-
-		c.JSON(404, gin.H{
-			"message": "User not found",
+		if errors.Is(err, repository.ErrUserNotFound) {
+			c.JSON(404, gin.H{
+				"message": "User not found",
+			})
+			return
+		}
+		// Handle other types of errors
+		c.JSON(500, gin.H{
+			"message": "Internal server error",
 		})
 		return
 	}
@@ -42,6 +49,9 @@ func (uc *User_Controller) CreateUser(c *gin.Context) {
 	body, err := io.ReadAll(io.Reader(c.Request.Body))
 	if err != nil {
 		// Handle error
+		c.JSON(400, gin.H{
+			"message": "Failed to read request body",
+		})
 		return
 	}
 	defer c.Request.Body.Close()
@@ -50,6 +60,9 @@ func (uc *User_Controller) CreateUser(c *gin.Context) {
 	var createData services.CreateUserData
 	if err := json.Unmarshal(body, &createData); err != nil {
 		// Handle error
+		c.JSON(400, gin.H{
+			"message": "Invalid request body",
+		})
 		return
 	}
 	log.Println(createData)
@@ -57,6 +70,9 @@ func (uc *User_Controller) CreateUser(c *gin.Context) {
 	// Pass createData to UserService's CreateUser method
 	if err := uc.userService.CreateUser(createData); err != nil {
 		// Handle error
+		c.JSON(500, gin.H{
+			"message": "Failed to create user",
+		})
 		return
 	}
 }
@@ -64,7 +80,11 @@ func (uc *User_Controller) CreateUser(c *gin.Context) {
 func (uc *User_Controller) GetAllUsers(c *gin.Context) {
 	users, err := uc.userService.GetUsers()
 	if err != nil {
+
 		// Handle error
+		c.JSON(500, gin.H{
+			"message": "Failed to retrieve users",
+		})
 		return
 	}
 	c.JSON(200, users)
