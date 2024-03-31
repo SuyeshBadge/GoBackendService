@@ -1,97 +1,98 @@
 package router
 
 import (
-	"log"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
+// BaseRouter is a struct that encapsulates common functionality for handling HTTP requests
 type BaseRouter struct {
-	RouterName string
-	Router     *gin.Engine
-	group      *gin.RouterGroup
+	Name   string
+	Engine *gin.Engine
+	group  *gin.RouterGroup
 }
 
-func NewBaseRouter(routerName string, router *gin.Engine) *BaseRouter {
+// HandlerFunc represents a handler function for processing HTTP requests
+type HandlerFunc func(*gin.Context) (interface{}, error)
+
+// NewBaseRouter initializes and returns a new instance of the BaseRouter struct
+func NewBaseRouter(name string, engine *gin.Engine) *BaseRouter {
 	return &BaseRouter{
-		RouterName: routerName,
-		Router:     router,
+		Name:   name,
+		Engine: engine,
+		group:  engine.Group("/"),
 	}
 }
 
-type HandlerFunc func(c *gin.Context) (interface{}, error)
+// Handle registers routes with the specified HTTP method, path, and handler function(s)
+func (br *BaseRouter) Handle(method, path string, handlers ...HandlerFunc) {
+	middlewares, lastHandler := getMiddlewaresAndLastHandler(handlers)
+	wrappedLastHandler := handleWrapper(lastHandler)
 
-// HandleFunc registers a route with the given method, path and handler function.
-func (br *BaseRouter) Handle(method string, path string, handler ...interface{}) {
-	middlewares, lastHandler := getMiddlewaresAndLastHandler(handler...)
-
-	br.Router.Handle(method, path, append(middlewares, handleWrapper(lastHandler))...)
-}
-
-// get all middlewares and last handler
-func getMiddlewaresAndLastHandler(handler ...interface{}) ([]gin.HandlerFunc, HandlerFunc) {
-	//get all middlewares
-	middlewares := []gin.HandlerFunc{}
-	for _, h := range handler {
-		if m, ok := h.(gin.HandlerFunc); ok {
-			middlewares = append(middlewares, m)
-		}
+	// Convert middlewares to gin.HandlerFunc
+	ginMiddlewares := make([]gin.HandlerFunc, len(middlewares))
+	for i, mw := range middlewares {
+		ginMiddlewares[i] = handleWrapper(mw)
 	}
 
-	//get last handler
-	lastHandler := handler[len(handler)-1].(HandlerFunc)
-
-	return middlewares, lastHandler
+	br.group.Handle(method, path, append(ginMiddlewares, wrappedLastHandler)...)
 }
 
-func handleWrapper(handler HandlerFunc) func(c *gin.Context) {
+// getMiddlewaresAndLastHandler extracts middlewares and the final handler function
+func getMiddlewaresAndLastHandler(handlers []HandlerFunc) ([]HandlerFunc, HandlerFunc) {
+	lastIndex := len(handlers) - 1
+	return handlers[:lastIndex], handlers[lastIndex]
+}
 
+// handleWrapper wraps the final handler function with Gin middleware for error handling and response formatting
+func handleWrapper(handler HandlerFunc) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		//call handler without switch case
+		defer func() {
+			if err := recover(); err != nil {
+				formatErrorResponse(c, http.StatusInternalServerError, err)
+			}
+		}()
 
 		data, err := handler(c)
 		if err != nil {
-			formatErrorResponse(c, http.StatusInternalServerError, err.Error())
-			return
+			formatErrorResponse(c, http.StatusInternalServerError, err)
+		} else {
+			formatSuccessResponse(c, http.StatusOK, data)
 		}
-		formatSuccessResponse(c, http.StatusOK, data)
-
 	}
 }
 
-func formatErrorResponse(c *gin.Context, statusCode int, message string) {
-	c.JSON(statusCode, gin.H{
+// formatErrorResponse formats and sends an error response
+func formatErrorResponse(c *gin.Context, statusCode int, err any) {
+	c.AbortWithStatusJSON(statusCode, gin.H{
 		"success":   false,
-		"error":     message,
-		"timestamp": time.Now().Unix(),
+		"error":     err,
+		"timestamp": time.Now().Format(time.RFC3339),
 	})
 }
 
+// formatSuccessResponse formats and sends a success response
 func formatSuccessResponse(c *gin.Context, statusCode int, data interface{}) {
 	c.JSON(statusCode, gin.H{
 		"success":   true,
 		"data":      data,
-		"timestamp": time.Now().Unix(),
+		"timestamp": time.Now().Format(time.RFC3339),
 	})
 }
 
-func (br *BaseRouter) Group(relativePath string, handlers ...gin.HandlerFunc) *BaseRouter {
-	br.group = br.Router.Group(relativePath, handlers...)
-	return br
-
+// Group creates a new router group relative to the current router's path and applies provided handlers to it
+func (br *BaseRouter) Group(relPath string, handlers ...gin.HandlerFunc) *BaseRouter {
+	newGroup := br.group.Group(relPath, handlers...)
+	return &BaseRouter{
+		Name:   br.Name,
+		Engine: br.Engine,
+		group:  newGroup,
+	}
 }
 
-func (br *BaseRouter) GET(relativePath string, handlers ...interface{}) {
-	middlewares, lastHandler := getMiddlewaresAndLastHandler(handlers...)
-
-	temp := append(middlewares, handleWrapper(lastHandler))
-	log.Println("temp", temp)
-	//if group is not nil, then add handlers to group else add to router
-	if br.group != nil {
-		br.group.GET(relativePath, append(middlewares, handleWrapper(lastHandler))...)
-	} else {
-		br.Router.GET(relativePath, append(middlewares, handleWrapper(lastHandler))...)
-	}
+// GET registers a route with the GET HTTP method
+func (br *BaseRouter) GET(path string, handlers ...HandlerFunc) {
+	br.Handle(http.MethodGet, path, handlers...)
 }
