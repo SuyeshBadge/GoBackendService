@@ -31,3 +31,9 @@ func NewUserRepository(db *gorm.DB) *User_Repository {
 		BaseRepository: repository.NewBaseRepository[User](db, "users"),
 	}
 }
+
+// func (r *User_Repository) GetTableName() string {
+// 	log.Println("GetTableName", r.Db.Name())
+// 	return r.Db.Migrator().CurrentDatabase() + "." + r.Db.Statement.Table
+
+// }

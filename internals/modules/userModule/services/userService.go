@@ -50,9 +50,11 @@ func (us *User_Service) GetUserByID(id string) (*repository.User, error) {
 
 // list of users
 func (us *User_Service) GetUsers() ([]repository.User, error) {
+	// log.Println(us.userRepository.GetTableName())
 	users, err := us.userRepository.FindAll(1, 10)
 	if err != nil {
-		return nil, fmt.Errorf("failed to retrieve users: %v", err)
+		return nil, fmt.Errorf("failed to retrieve users: %v", err.Error())
 	}
 	return users, nil
+
 }

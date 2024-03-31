@@ -5,7 +5,7 @@ import (
 	repository "backendService/internals/modules/userModule/repositories"
 	userModule "backendService/internals/modules/userModule/routes"
 	"backendService/internals/modules/userModule/services"
-	"backendService/internals/setup/database"
+	"backendService/internals/setup/server"
 )
 
 var (
@@ -14,8 +14,8 @@ var (
 )
 
 func Initialize() {
-	// initialize user module
-	userRepository := repository.NewUserRepository(database.Db)
+
+	userRepository := repository.NewUserRepository(server.Server.Db)
 	userService := services.NewUserService(userRepository)
 	userController := controller.NewUserController(userService)
 	userRouter := userModule.NewUserRouter(userController)

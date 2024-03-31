@@ -8,6 +8,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var (
+	Server *server
+)
+
 type server struct {
 	Config *config.AppConfig
 	Db     *database.Database
@@ -15,11 +19,12 @@ type server struct {
 }
 
 func NewServer(config *config.AppConfig, db *database.Database) *server {
-	return &server{
+	Server = &server{
 		Config: config,
 		Db:     db,
 		App:    gin.Default(),
 	}
+	return Server
 }
 
 func (s *server) Start() {

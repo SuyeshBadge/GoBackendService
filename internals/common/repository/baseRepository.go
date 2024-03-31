@@ -69,26 +69,23 @@ func (r *BaseRepository[T]) Create(model *T) error {
 }
 
 func (r *BaseRepository[T]) Update(filter any, update any) error {
-	//find the record with filter and update the record with update
+	session := r.Db.Session(&gorm.Session{})
 	model := new(T)
-	return r.Db.Model(model).Where(filter).Updates(update).Error
-
+	return session.Model(model).Where(filter).Updates(update).Error
 }
 
-// FindByID retrieves a record from the database based on the given ID.
-// It assigns the result to the provided model pointer.
-// Returns an error if the record is not found or if there is an issue with the database operation.
 func (r *BaseRepository[T]) Delete(id uint64) error {
+	session := r.Db.Session(&gorm.Session{})
 	model := new(T)
 
-	err := r.Db.First(model, id).Error
+	err := session.First(model, id).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil
 		}
 		return err
 	}
-	//update the record to soft delete
+
 	now := time.Now()
 	modelValue := reflect.ValueOf(model).Elem()
 
@@ -102,7 +99,7 @@ func (r *BaseRepository[T]) Delete(id uint64) error {
 		isDeletedField.Set(reflect.ValueOf(true))
 	}
 
-	return r.Db.Save(model).Error
+	return session.Save(model).Error
 }
 
 // FindByID retrieves a record from the database based on the given ID.
@@ -110,15 +107,16 @@ func (r *BaseRepository[T]) Delete(id uint64) error {
 // The retrieved record is stored in the 'model' variable.
 // If an error occurs during the retrieval, it is returned.
 func (r *BaseRepository[T]) FindByID(id uint64) (*T, error) {
+	session := r.Db.Session(&gorm.Session{})
 	var model T
-
-	err := r.Db.Scopes(AllowNonDeletedRecords).First(&model, id).Error
+	err := session.Scopes(AllowNonDeletedRecords).First(&model, id).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
 		return nil, err
 	}
+
 	return &model, nil
 }
 
@@ -127,29 +125,29 @@ func (r *BaseRepository[T]) FindByID(id uint64) (*T, error) {
 // The retrieved models are stored in the 'models' slice.
 // Returns an error if there was a problem executing the query.
 func (r *BaseRepository[T]) FindAll(page, pageSize int) ([]T, error) {
-
+	session := r.Db.Session(&gorm.Session{})
 	if pageSize <= 0 {
 		pageSize = defaultPageSize
 	}
 
 	var models []T
 
-	err1 := r.Db.Scopes(paginateScope(page, pageSize), AllowNonDeletedRecords).Find(&models).Error
-	if err1 != nil {
-
-		return nil, err1
+	err := session.Scopes(paginateScope(page, pageSize), AllowNonDeletedRecords).Find(&models).Error
+	if err != nil {
+		return nil, err
 	}
 
 	return models, nil
 }
 
 func (r *BaseRepository[T]) FindAllBy(conditions map[string]interface{}, page, pageSize int) ([]T, error) {
+	session := r.Db.Session(&gorm.Session{})
 	if pageSize <= 0 {
 		pageSize = defaultPageSize
 	}
 
 	var models []T
-	err := r.Db.Scopes(paginateScope(page, pageSize), func(db *gorm.DB) *gorm.DB {
+	err := session.Scopes(paginateScope(page, pageSize), func(db *gorm.DB) *gorm.DB {
 		for key, value := range conditions {
 			db = db.Where(key, value)
 		}
@@ -162,8 +160,9 @@ func (r *BaseRepository[T]) FindAllBy(conditions map[string]interface{}, page, p
 }
 
 func (r *BaseRepository[T]) FindOneBy(conditions map[string]interface{}) (*T, error) {
+	session := r.Db.Session(&gorm.Session{})
 	var model T
-	err := r.Db.Scopes(func(db *gorm.DB) *gorm.DB {
+	err := session.Scopes(func(db *gorm.DB) *gorm.DB {
 		for key, value := range conditions {
 			db = db.Where(key, value)
 		}

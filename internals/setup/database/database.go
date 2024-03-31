@@ -91,6 +91,7 @@ func InitializeDataBase(databaseType string) error {
 }
 
 func CloseDB() {
+	log.Println("Closing database connection...")
 	dbConnection, _ := Db.DB()
 	defer dbConnection.Close()
 }
