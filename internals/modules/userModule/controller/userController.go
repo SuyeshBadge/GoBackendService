@@ -1,7 +1,6 @@
 package controller
 
 import (
-	repository "backendService/internals/modules/userModule/repositories"
 	"backendService/internals/modules/userModule/services"
 	"errors"
 
@@ -17,26 +16,15 @@ type User_Controller struct {
 	userService *services.User_Service
 }
 
-func (uc *User_Controller) GetUser(c *gin.Context) {
+func (uc *User_Controller) GetUser(c *gin.Context) (interface{}, error) {
 	id := c.Param("id")
+	log.Println(id)
+
 	user, err := uc.userService.GetUserByID(id)
 	if err != nil {
-		if errors.Is(err, repository.ErrUserNotFound) {
-			c.JSON(404, gin.H{
-				"message": "User not found",
-			})
-			return
-		}
-		// Handle other types of errors
-		c.JSON(500, gin.H{
-			"message": "Internal server error",
-		})
-		return
+		return nil, errors.New("failed to retrieve user")
 	}
-	c.JSON(200, gin.H{
-		"message": "Hello World",
-		"user":    user,
-	})
+	return user, nil
 }
 
 func NewUserController(userService *services.User_Service) *User_Controller {

@@ -55,7 +55,8 @@ func Connect(config *dbConfig) error {
 		log.Printf("Failed to connect to database: %v", err)
 		return err
 	}
-	Db = Db.Debug()
+
+	// Db = Db.Debug() // Uncomment this line to see SQL queries
 	log.Printf("Connected to database :: %s", Db.Name())
 
 	dbConnection, _ := Db.DB()

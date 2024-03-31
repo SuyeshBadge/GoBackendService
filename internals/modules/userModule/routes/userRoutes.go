@@ -1,6 +1,7 @@
 package userModule
 
 import (
+	"backendService/internals/common/router"
 	"backendService/internals/modules/userModule/controller"
 
 	"github.com/gin-gonic/gin"
@@ -12,11 +13,20 @@ type User_Router struct {
 
 func (ur *User_Router) SetupRoutes(app *gin.Engine) {
 
-	userRouter := app.Group("api/v1/user")
+	router := router.NewBaseRouter("UserRouter", app)
+
+	userRouter := router.Group("api/v1/user")
 	{
-		userRouter.GET("/:id", ur.userController.GetUser)
-		userRouter.POST("/", ur.userController.CreateUser)
-		userRouter.GET("/", ur.userController.GetAllUsers)
+
+		userRouter.GET("/:id", func(c *gin.Context) {
+			_, err := ur.userController.GetUser(c)
+			if err != nil {
+				// Handle error
+				return
+			}
+			// Handle result
+		})
+
 	}
 }
 
