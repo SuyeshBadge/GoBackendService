@@ -26,8 +26,6 @@ type BaseRepository[T any] struct {
 	tableName string
 }
 
-type Database = *gorm.DB
-
 // NewBaseRepository creates a new instance of the BaseRepository with the specified database connection and table name.
 // It returns a pointer to the created BaseRepository.
 // The type parameter T represents the model type that the repository will operate on.
@@ -136,10 +134,12 @@ func (r *BaseRepository[T]) FindAll(page, pageSize int) ([]T, error) {
 
 	var models []T
 
-	err := r.Db.Scopes(paginateScope(page, pageSize), AllowNonDeletedRecords).Find(&models).Error
-	if err != nil {
-		return nil, err
+	err1 := r.Db.Scopes(paginateScope(page, pageSize), AllowNonDeletedRecords).Find(&models).Error
+	if err1 != nil {
+
+		return nil, err1
 	}
+
 	return models, nil
 }
 

@@ -11,6 +11,8 @@ import (
 	"gorm.io/gorm"
 )
 
+type Database = gorm.DB
+
 type dbConfig struct {
 	dbType     string
 	dbHost     string
@@ -31,20 +33,19 @@ func (c *dbConfig) postgresDSN() string {
 }
 
 var Db *gorm.DB
-var db *gorm.DB
 
 func Connect(config *dbConfig) error {
 	var err error
 
 	switch config.dbType {
 	case "mysql":
-		db, err = gorm.Open(mysql.Open(config.mysqlDSN()), &gorm.Config{})
+		Db, err = gorm.Open(mysql.Open(config.mysqlDSN()), &gorm.Config{})
 
 	case "postgres":
-		db, err = gorm.Open(postgres.Open(config.postgresDSN()), &gorm.Config{})
+		Db, err = gorm.Open(postgres.Open(config.postgresDSN()), &gorm.Config{})
 
 	case "sqlite":
-		db, err = gorm.Open(sqlite.Open(config.dbName+".sqlite"), &gorm.Config{})
+		Db, err = gorm.Open(sqlite.Open(config.dbName+".sqlite"), &gorm.Config{})
 
 	default:
 		return fmt.Errorf("unsupported database type: %s", config.dbType)
@@ -54,11 +55,13 @@ func Connect(config *dbConfig) error {
 		log.Printf("Failed to connect to database: %v", err)
 		return err
 	}
-
-	Db = db.Debug()
+	Db = Db.Debug()
 	log.Printf("Connected to database :: %s", Db.Name())
 
 	dbConnection, _ := Db.DB()
+	dbConnection.SetMaxIdleConns(10)
+	dbConnection.SetMaxOpenConns(100)
+	dbConnection.SetConnMaxLifetime(300)
 
 	if err := dbConnection.Ping(); err != nil {
 		log.Printf("Failed to ping database: %v", err)
@@ -85,4 +88,9 @@ func InitializeDataBase(databaseType string) error {
 	}
 	log.Println("Database initialization completed.")
 	return nil
+}
+
+func CloseDB() {
+	dbConnection, _ := Db.DB()
+	defer dbConnection.Close()
 }

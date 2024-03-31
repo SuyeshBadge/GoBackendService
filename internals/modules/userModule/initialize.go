@@ -8,7 +8,10 @@ import (
 	"backendService/internals/setup/database"
 )
 
-var UserRouter *userModule.User_Router
+var (
+	UserRouter  *userModule.User_Router
+	UserService *services.User_Service
+)
 
 func Initialize() {
 	// initialize user module
@@ -16,5 +19,8 @@ func Initialize() {
 	userService := services.NewUserService(userRepository)
 	userController := controller.NewUserController(userService)
 	userRouter := userModule.NewUserRouter(userController)
+
+	// Export
+	UserService = userService
 	UserRouter = userRouter
 }
