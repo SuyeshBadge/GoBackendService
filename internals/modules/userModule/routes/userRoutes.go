@@ -19,6 +19,7 @@ func (ur *User_Router) SetupRoutes(app *gin.Engine) {
 	{
 
 		userRouter.GET("/:id", ur.userController.GetUser)
+		userRouter.GET("/", ur.userController.GetAllUsers)
 
 	}
 }

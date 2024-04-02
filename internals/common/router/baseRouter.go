@@ -14,8 +14,13 @@ type BaseRouter struct {
 	group  *gin.RouterGroup
 }
 
+type Response struct {
+	Data    any    `json:"data"`
+	Message string `json:"message"`
+}
+
 // HandlerFunc represents a handler function for processing HTTP requests
-type HandlerFunc func(*gin.Context) (interface{}, error)
+type HandlerFunc func(*gin.Context) (Response, error)
 
 // NewBaseRouter initializes and returns a new instance of the BaseRouter struct
 func NewBaseRouter(name string, engine *gin.Engine) *BaseRouter {
@@ -30,13 +35,10 @@ func NewBaseRouter(name string, engine *gin.Engine) *BaseRouter {
 func (br *BaseRouter) Handle(method, path string, handlers ...HandlerFunc) {
 	middlewares, lastHandler := getMiddlewaresAndLastHandler(handlers)
 	wrappedLastHandler := handleWrapper(lastHandler)
-
-	// Convert middlewares to gin.HandlerFunc
 	ginMiddlewares := make([]gin.HandlerFunc, len(middlewares))
 	for i, mw := range middlewares {
 		ginMiddlewares[i] = handleWrapper(mw)
 	}
-
 	br.group.Handle(method, path, append(ginMiddlewares, wrappedLastHandler)...)
 }
 
@@ -54,12 +56,11 @@ func handleWrapper(handler HandlerFunc) gin.HandlerFunc {
 				formatErrorResponse(c, http.StatusInternalServerError, err)
 			}
 		}()
-
 		data, err := handler(c)
 		if err != nil {
 			formatErrorResponse(c, http.StatusInternalServerError, err)
 		} else {
-			formatSuccessResponse(c, http.StatusOK, data)
+			formatSuccessResponse(c, http.StatusOK, data.Data)
 		}
 	}
 }
