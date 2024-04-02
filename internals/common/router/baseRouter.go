@@ -97,3 +97,28 @@ func (br *BaseRouter) Group(relPath string, handlers ...gin.HandlerFunc) *BaseRo
 func (br *BaseRouter) GET(path string, handlers ...HandlerFunc) {
 	br.Handle(http.MethodGet, path, handlers...)
 }
+
+// POST registers a route with the POST HTTP method
+func (br *BaseRouter) POST(path string, handlers ...HandlerFunc) {
+	br.Handle(http.MethodPost, path, handlers...)
+}
+
+// PUT registers a route with the PUT HTTP method
+func (br *BaseRouter) PUT(path string, handlers ...HandlerFunc) {
+	br.Handle(http.MethodPut, path, handlers...)
+}
+
+// DELETE registers a route with the DELETE HTTP method
+func (br *BaseRouter) DELETE(path string, handlers ...HandlerFunc) {
+	br.Handle(http.MethodDelete, path, handlers...)
+}
+
+// PATCH registers a route with the PATCH HTTP method
+func (br *BaseRouter) PATCH(path string, handlers ...HandlerFunc) {
+	br.Handle(http.MethodPatch, path, handlers...)
+}
+
+// OPTIONS registers a route with the OPTIONS HTTP method
+func (br *BaseRouter) OPTIONS(path string, handlers ...HandlerFunc) {
+	br.Handle(http.MethodOptions, path, handlers...)
+}
