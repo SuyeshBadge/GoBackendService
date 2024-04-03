@@ -1,32 +1,28 @@
 package controller
 
 import (
-	"backendService/internals/common/router"
-	"backendService/internals/modules/userModule/services"
 	"errors"
 
-	"encoding/json"
-	"log"
-
-	"io"
-
 	"github.com/gin-gonic/gin"
+
+	controllers "backendService/internals/common/controller"
+	"backendService/internals/common/router"
+	"backendService/internals/modules/userModule/dto"
+	"backendService/internals/modules/userModule/services"
 )
 
 type User_Controller struct {
+	controllers.BaseController
 	userService *services.User_Service
 }
 
-// The NewUserController function creates a new instance of User_Controller with a provided userService
+// NewUserController creates a new instance of User_Controller with a provided userService
 // dependency.
 func NewUserController(userService *services.User_Service) *User_Controller {
-	return &User_Controller{
-		userService: userService,
-	}
+	return &User_Controller{userService: userService}
 }
 
 // GetUser retrieves a user from the database.
-// It takes a gin.Context object as a parameter and returns a router.Response containing a repository.User object and an error.
 func (uc *User_Controller) GetUser(c *gin.Context) (router.Response, error) {
 	id := c.Param("id")
 	user, err := uc.userService.GetUserByID(id)
@@ -37,49 +33,35 @@ func (uc *User_Controller) GetUser(c *gin.Context) (router.Response, error) {
 	if user == nil {
 		message = "User not found"
 	}
-	return router.Response{
-		Data:    user,
-		Message: message,
-	}, nil
+	return router.Response{Data: user, Message: message}, nil
 }
 
-// CreateUser handles the creation of a user.
-// It reads the request body, parses it into a CreateUserData struct,
-// and passes the data to the UserService's CreateUser method.
+// CreateUser handles the creation of a user. It reads the request body, parses it into a CreateUserData struct,
+// and passes the data to the UserService's CreateUser method. CreateUser validates the request body and creates a new user.
 func (uc *User_Controller) CreateUser(c *gin.Context) (router.Response, error) {
-	body, err := io.ReadAll(io.Reader(c.Request.Body))
-	if err != nil {
-		return router.Response{}, errors.New("failed to read request body")
-	}
-	defer c.Request.Body.Close()
-
-	// Parse request body into CreateUserData struct
-	var createData services.CreateUserData
-	if err := json.Unmarshal(body, &createData); err != nil {
+	var createData dto.CreateUserBody
+	if err := c.ShouldBindJSON(&createData); err != nil {
 		return router.Response{}, errors.New("failed to parse request body")
 	}
-	log.Println(createData)
 
-	// Pass createData to UserService's CreateUser method
+	_, err := uc.TransformAndValidate(c, createData)
+	if err != nil {
+		return router.Response{}, err
+	}
+
 	user, err := uc.userService.CreateUser(createData)
 	if err != nil {
 		return router.Response{}, errors.New("failed to create user")
 	}
-	return router.Response{
-		Data:    user,
-		Message: "User created successfully",
-	}, nil
+
+	return router.Response{Data: user, Message: "User created successfully"}, nil
 }
 
 // GetAllUsers retrieves all users from the database.
-// It returns a slice of User objects and an error if any.
 func (uc *User_Controller) GetAllUsers(c *gin.Context) (router.Response, error) {
 	users, err := uc.userService.GetUsers()
 	if err != nil {
 		return router.Response{}, errors.New("failed to retrieve users")
 	}
-	return router.Response{
-		Data:    users,
-		Message: "Users retrieved successfully",
-	}, nil
+	return router.Response{Data: users, Message: "Users retrieved successfully"}, nil
 }

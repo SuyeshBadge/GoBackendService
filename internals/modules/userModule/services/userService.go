@@ -1,6 +1,7 @@
 package services
 
 import (
+	"backendService/internals/modules/userModule/dto"
 	repository "backendService/internals/modules/userModule/repositories"
 	"errors"
 	"fmt"
@@ -18,11 +19,11 @@ func NewUserService(userRepository *repository.User_Repository) *User_Service {
 	return &User_Service{userRepository: userRepository}
 }
 
-func (us *User_Service) CreateUser(createUserData CreateUserData) (*repository.User, error) {
+func (us *User_Service) CreateUser(createUserData dto.CreateUserBody) (*repository.User, error) {
 	userData := repository.User{
 		Name:     createUserData.Name,
 		Age:      createUserData.Age,
-		Username: createUserData.Username,
+		Username: createUserData.UserName,
 		Password: createUserData.Password,
 		Mobile:   &createUserData.Mobile,
 	}
