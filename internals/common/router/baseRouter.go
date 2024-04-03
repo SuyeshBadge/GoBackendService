@@ -60,7 +60,7 @@ func handleWrapper(handler HandlerFunc) gin.HandlerFunc {
 		if err != nil {
 			formatErrorResponse(c, http.StatusInternalServerError, err)
 		} else {
-			formatSuccessResponse(c, http.StatusOK, data.Data)
+			formatSuccessResponse(c, http.StatusOK, data.Data, data.Message)
 		}
 	}
 }
@@ -71,15 +71,17 @@ func formatErrorResponse(c *gin.Context, statusCode int, err any) {
 		"success":   false,
 		"error":     err,
 		"timestamp": time.Now().Format(time.RFC3339),
+		"message":   http.StatusText(statusCode),
 	})
 }
 
 // formatSuccessResponse formats and sends a success response
-func formatSuccessResponse(c *gin.Context, statusCode int, data interface{}) {
+func formatSuccessResponse(c *gin.Context, statusCode int, data interface{}, message string) {
 	c.JSON(statusCode, gin.H{
 		"success":   true,
 		"data":      data,
 		"timestamp": time.Now().Format(time.RFC3339),
+		"message":   message,
 	})
 }
 

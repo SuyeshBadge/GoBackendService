@@ -41,7 +41,7 @@ func NewBaseRepository[T any](db *gorm.DB, tableName string) *BaseRepository[T] 
 
 	return repo
 }
-func (r *BaseRepository[T]) Create(model *T) error {
+func (r *BaseRepository[T]) Create(model *T) (*T, error) {
 
 	// Set the BaseModel fields in the input model
 	modelValue := reflect.ValueOf(model).Elem()
@@ -65,7 +65,12 @@ func (r *BaseRepository[T]) Create(model *T) error {
 		}
 	}
 
-	return r.Db.Create(model).Error
+	err := r.Db.Create(model).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return model, nil
 }
 
 func (r *BaseRepository[T]) Update(filter any, update any) error {

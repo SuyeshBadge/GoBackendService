@@ -18,8 +18,8 @@ func NewUserService(userRepository *repository.User_Repository) *User_Service {
 	return &User_Service{userRepository: userRepository}
 }
 
-func (us *User_Service) CreateUser(createUserData CreateUserData) error {
-	user := repository.User{
+func (us *User_Service) CreateUser(createUserData CreateUserData) (*repository.User, error) {
+	userData := repository.User{
 		Name:     createUserData.Name,
 		Age:      createUserData.Age,
 		Username: createUserData.Username,
@@ -27,10 +27,11 @@ func (us *User_Service) CreateUser(createUserData CreateUserData) error {
 		Mobile:   &createUserData.Mobile,
 	}
 
-	if err := us.userRepository.Create(&user); err != nil {
-		return fmt.Errorf("failed to create user: %v", err)
+	user, err := us.userRepository.Create(&userData)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create user: %v", err)
 	}
-	return nil
+	return user, nil
 }
 
 func (us *User_Service) GetUserByID(id string) (*repository.User, error) {
