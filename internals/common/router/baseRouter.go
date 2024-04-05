@@ -1,6 +1,7 @@
 package router
 
 import (
+	"errors"
 	"net/http"
 	"time"
 
@@ -53,6 +54,11 @@ func handleWrapper(handler HandlerFunc) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer func() {
 			if err := recover(); err != nil {
+				err, ok := err.(error)
+				if !ok {
+					err = errors.New("unknown error")
+				}
+
 				formatErrorResponse(c, http.StatusInternalServerError, err)
 			}
 		}()
@@ -66,12 +72,13 @@ func handleWrapper(handler HandlerFunc) gin.HandlerFunc {
 }
 
 // formatErrorResponse formats and sends an error response
-func formatErrorResponse(c *gin.Context, statusCode int, err any) {
-	c.AbortWithStatusJSON(statusCode, gin.H{
+func formatErrorResponse(c *gin.Context, statusCode int, err error) {
+
+	c.JSON(statusCode, gin.H{
+		"error":     err.Error(),
 		"success":   false,
-		"error":     err,
 		"timestamp": time.Now().Format(time.RFC3339),
-		"message":   http.StatusText(statusCode),
+		"message":   "Something went wrong",
 	})
 }
 

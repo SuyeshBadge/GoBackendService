@@ -13,6 +13,7 @@ type BaseController struct{}
 
 // TransformAndValidate method transforms and validates the given data using the provided DTO struct.
 func (c *BaseController) TransformAndValidate(ctx *gin.Context, dtoStruct interface{}) (interface{}, error) {
+
 	if !c.shouldValidate(dtoStruct) {
 		return dtoStruct, nil
 	}
@@ -21,9 +22,6 @@ func (c *BaseController) TransformAndValidate(ctx *gin.Context, dtoStruct interf
 	err := validate.Struct(dtoStruct)
 	if err != nil {
 		validationErrors := extractValidationErrors(err)
-		// ctx.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{
-		// 	"errors": validationErrors,
-		// })
 		return nil, ErrValidation(validationErrors)
 	}
 
