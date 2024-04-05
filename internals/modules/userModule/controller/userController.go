@@ -40,9 +40,9 @@ func (uc *User_Controller) GetUser(c *gin.Context) (router.Response, error) {
 // and passes the data to the UserService's CreateUser method. CreateUser validates the request body and creates a new user.
 func (uc *User_Controller) CreateUser(c *gin.Context) (router.Response, error) {
 	var createData dto.CreateUserBody
-	if err := c.ShouldBindJSON(&createData); err != nil {
-		return router.Response{}, errors.New("failed to parse request body")
-	}
+	// if err := c.ShouldBindJSON(&createData); err != nil {
+	// 	return router.Response{}, errors.New("failed to parse request body")
+	// }
 
 	_, err := uc.TransformAndValidate(c, createData)
 	if err != nil {
