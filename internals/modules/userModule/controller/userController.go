@@ -23,7 +23,7 @@ func NewUserController(userService *services.User_Service) *User_Controller {
 }
 
 // GetUser retrieves a user from the database.
-func (uc *User_Controller) GetUser(c *gin.Context) (router.Response, error) {
+func (uc *User_Controller) GetUser(c *gin.Context) (router.Response, any) {
 	id := c.Param("id")
 	user, err := uc.userService.GetUserByID(id)
 	if err != nil {
@@ -38,7 +38,7 @@ func (uc *User_Controller) GetUser(c *gin.Context) (router.Response, error) {
 
 // CreateUser handles the creation of a user. It reads the request body, parses it into a CreateUserData struct,
 // and passes the data to the UserService's CreateUser method. CreateUser validates the request body and creates a new user.
-func (uc *User_Controller) CreateUser(c *gin.Context) (router.Response, error) {
+func (uc *User_Controller) CreateUser(c *gin.Context) (router.Response, any) {
 	var createData dto.CreateUserBody
 	// if err := c.ShouldBindJSON(&createData); err != nil {
 	// 	return router.Response{}, errors.New("failed to parse request body")
@@ -49,8 +49,8 @@ func (uc *User_Controller) CreateUser(c *gin.Context) (router.Response, error) {
 		return router.Response{}, err
 	}
 
-	user, err := uc.userService.CreateUser(createData)
-	if err != nil {
+	user, err1 := uc.userService.CreateUser(createData)
+	if err1 != nil {
 		return router.Response{}, errors.New("failed to create user")
 	}
 
@@ -58,7 +58,7 @@ func (uc *User_Controller) CreateUser(c *gin.Context) (router.Response, error) {
 }
 
 // GetAllUsers retrieves all users from the database.
-func (uc *User_Controller) GetAllUsers(c *gin.Context) (router.Response, error) {
+func (uc *User_Controller) GetAllUsers(c *gin.Context) (router.Response, any) {
 	users, err := uc.userService.GetUsers()
 	if err != nil {
 		return router.Response{}, errors.New("failed to retrieve users")

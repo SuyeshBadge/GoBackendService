@@ -19,7 +19,7 @@ func NewUserService(userRepository *repository.User_Repository) *User_Service {
 	return &User_Service{userRepository: userRepository}
 }
 
-func (us *User_Service) CreateUser(createUserData dto.CreateUserBody) (*repository.User, error) {
+func (us *User_Service) CreateUser(createUserData dto.CreateUserBody) (*repository.User, interface{}) {
 	userData := repository.User{
 		Name:     createUserData.Name,
 		Age:      createUserData.Age,

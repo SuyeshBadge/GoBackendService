@@ -1,7 +1,6 @@
 package router
 
 import (
-	"errors"
 	"net/http"
 	"time"
 
@@ -21,7 +20,7 @@ type Response struct {
 }
 
 // HandlerFunc represents a handler function for processing HTTP requests
-type HandlerFunc func(*gin.Context) (Response, error)
+type HandlerFunc func(*gin.Context) (Response, interface{})
 
 // NewBaseRouter initializes and returns a new instance of the BaseRouter struct
 func NewBaseRouter(name string, engine *gin.Engine) *BaseRouter {
@@ -54,10 +53,6 @@ func handleWrapper(handler HandlerFunc) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer func() {
 			if err := recover(); err != nil {
-				err, ok := err.(error)
-				if !ok {
-					err = errors.New("unknown error")
-				}
 
 				formatErrorResponse(c, http.StatusInternalServerError, err)
 			}
@@ -72,10 +67,10 @@ func handleWrapper(handler HandlerFunc) gin.HandlerFunc {
 }
 
 // formatErrorResponse formats and sends an error response
-func formatErrorResponse(c *gin.Context, statusCode int, err error) {
+func formatErrorResponse(c *gin.Context, statusCode int, err interface{}) {
 
 	c.JSON(statusCode, gin.H{
-		"error":     err.Error(),
+		"error":     err,
 		"success":   false,
 		"timestamp": time.Now().Format(time.RFC3339),
 		"message":   "Something went wrong",
