@@ -11,8 +11,10 @@ type UnauthorizedError struct {
 
 func NewUnauthorizedError(errorCode string, message string, parameters ...interface{}) *ApplicationError {
 	//Default status code to 401
-	if parameters[0] == nil {
-		parameters[0] = http.StatusUnauthorized
+	statusCode := http.StatusUnauthorized
+
+	if len(parameters) == 0 {
+		parameters = append(parameters, statusCode)
 	}
 	appErr := NewApplicationError(errorCode, message, parameters...)
 	return appErr

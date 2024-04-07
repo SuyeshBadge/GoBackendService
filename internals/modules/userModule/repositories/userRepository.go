@@ -2,7 +2,6 @@ package repository
 
 import (
 	"backendService/internals/common/repository"
-	"errors"
 
 	"gorm.io/gorm"
 )
@@ -16,8 +15,6 @@ type User struct {
 	Password string  `json:"password"`         // Password of the user
 	Mobile   *string `json:"mobile,omitempty"` // Mobile number of the user (optional)
 }
-
-var ErrUserNotFound = errors.New("user not found")
 
 // UserRepository represents a repository for managing user data.
 type User_Repository struct {

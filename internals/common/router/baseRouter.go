@@ -3,8 +3,6 @@ package router
 import (
 	"backendService/internals/common/errors"
 	"backendService/internals/setup/server"
-	"fmt"
-	"log"
 	"net/http"
 	"time"
 
@@ -74,37 +72,25 @@ func handleWrapper(handler HandlerFunc) gin.HandlerFunc {
 // formatErrorResponse formats and sends an error response
 func formatErrorResponse(c *gin.Context, statusCode int, err interface{}) {
 
-	//get error stack trace using gin.Error
-	stack := gin.Error{
-		Err:  fmt.Errorf("%v", err),
-		Type: gin.ErrorTypePrivate,
-		Meta: nil,
-	}
-	log.Println(":::::::::", stack.Err)
+	var errorCode, message string
 
-	//if error is of type ApplicationError, extract the status code
 	if appErr, ok := err.(*errors.ApplicationError); ok {
 		statusCode = appErr.HttpStatusCode
-		err = gin.H{
-			"errorCode": appErr.ErrorCode,
-			"message":   appErr.Message,
-		}
+		errorCode = appErr.ErrorCode
+		message = appErr.Message
 	} else {
+		errorCode = "internal_server_error"
 		if server.Server.Config.App.Env == "development" {
-			err = gin.H{
-				"errorCode": "internal_server_error",
-				"message":   err.(error).Error(),
-			}
+			message = err.(error).Error()
 		} else {
-			err = gin.H{
-				"errorCode": "internal_server_error",
-				"message":   "Something went wrong. Please try again later.",
-			}
+			message = "Something went wrong. Please try again later."
 		}
+		err = errors.NewApplicationError(errorCode, message, http.StatusInternalServerError)
+
 	}
 
 	c.JSON(statusCode, gin.H{
-		"error":     err,
+		"error":     gin.H{"errorCode": errorCode, "message": message},
 		"success":   false,
 		"timestamp": time.Now().Format(time.RFC3339),
 	})

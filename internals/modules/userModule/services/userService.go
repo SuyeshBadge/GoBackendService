@@ -4,7 +4,6 @@ import (
 	appError "backendService/internals/common/errors"
 	"backendService/internals/modules/userModule/dto"
 	repository "backendService/internals/modules/userModule/repositories"
-	"errors"
 
 	"fmt"
 	"strconv"
@@ -52,10 +51,10 @@ func (us *User_Service) GetUserByID(id string) (*repository.User, *appError.Appl
 	}
 	user, err := us.userRepository.FindByID(num)
 	if err != nil {
-		if errors.Is(err, repository.ErrUserNotFound) {
-			return nil, appError.NewNotFoundError("user_not_found", "user not found")
-		}
 		return nil, appError.NewApplicationError("internal_error", "failed to retrieve user")
+	}
+	if user == nil {
+		return nil, appError.NewBadRequestError("user_not_found", "user not found")
 	}
 	return user, nil
 }

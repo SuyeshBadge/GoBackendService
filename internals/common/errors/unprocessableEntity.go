@@ -12,10 +12,11 @@ type UnprocessableEntityError struct {
 
 func NewUnprocessableEntityError(errorCode string, message string, parameters ...interface{}) *ApplicationError {
 	//Default status code to 422
-	if parameters[0] == nil {
-		parameters[0] = http.StatusUnprocessableEntity
-	}
+	statusCode := http.StatusUnprocessableEntity
 
+	if len(parameters) == 0 {
+		parameters = append(parameters, statusCode)
+	}
 	appErr := NewApplicationError(errorCode, message, parameters...)
 	return appErr
 }
