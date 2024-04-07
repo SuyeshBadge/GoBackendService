@@ -1,6 +1,10 @@
 package router
 
 import (
+	"backendService/internals/common/errors"
+	"backendService/internals/setup/server"
+	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -53,12 +57,13 @@ func handleWrapper(handler HandlerFunc) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer func() {
 			if err := recover(); err != nil {
-
+				// log.Println("inside handleWrapper2", err)
 				formatErrorResponse(c, http.StatusInternalServerError, err)
 			}
 		}()
 		data, err := handler(c)
 		if err != nil {
+			// log.Println("inside handleWrapper", err)
 			formatErrorResponse(c, http.StatusInternalServerError, err)
 		} else {
 			formatSuccessResponse(c, http.StatusOK, data.Data, data.Message)
@@ -69,11 +74,39 @@ func handleWrapper(handler HandlerFunc) gin.HandlerFunc {
 // formatErrorResponse formats and sends an error response
 func formatErrorResponse(c *gin.Context, statusCode int, err interface{}) {
 
+	//get error stack trace using gin.Error
+	stack := gin.Error{
+		Err:  fmt.Errorf("%v", err),
+		Type: gin.ErrorTypePrivate,
+		Meta: nil,
+	}
+	log.Println(":::::::::", stack.Err)
+
+	//if error is of type ApplicationError, extract the status code
+	if appErr, ok := err.(*errors.ApplicationError); ok {
+		statusCode = appErr.HttpStatusCode
+		err = gin.H{
+			"errorCode": appErr.ErrorCode,
+			"message":   appErr.Message,
+		}
+	} else {
+		if server.Server.Config.App.Env == "development" {
+			err = gin.H{
+				"errorCode": "internal_server_error",
+				"message":   err.(error).Error(),
+			}
+		} else {
+			err = gin.H{
+				"errorCode": "internal_server_error",
+				"message":   "Something went wrong. Please try again later.",
+			}
+		}
+	}
+
 	c.JSON(statusCode, gin.H{
 		"error":     err,
 		"success":   false,
 		"timestamp": time.Now().Format(time.RFC3339),
-		"message":   "Something went wrong",
 	})
 }
 

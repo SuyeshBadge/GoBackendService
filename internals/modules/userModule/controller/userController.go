@@ -2,6 +2,7 @@ package controller
 
 import (
 	"errors"
+	"log"
 
 	"github.com/gin-gonic/gin"
 
@@ -27,7 +28,8 @@ func (uc *User_Controller) GetUser(c *gin.Context) (router.Response, any) {
 	id := c.Param("id")
 	user, err := uc.userService.GetUserByID(id)
 	if err != nil {
-		return router.Response{}, errors.New("failed to retrieve user")
+		log.Println("Error in GetUserByID: ", err)
+		return router.Response{}, err
 	}
 	message := "User retrieved successfully"
 	if user == nil {

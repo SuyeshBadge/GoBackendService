@@ -19,10 +19,16 @@ type server struct {
 }
 
 func NewServer(config *config.AppConfig, db *database.Database) *server {
+
+	//set gin to release mode
+	gin.SetMode(config.App.GinMode)
+
+	app := gin.Default()
+
 	Server = &server{
 		Config: config,
 		Db:     db,
-		App:    gin.Default(),
+		App:    app,
 	}
 	return Server
 }

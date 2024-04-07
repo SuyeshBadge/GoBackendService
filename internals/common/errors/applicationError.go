@@ -1,9 +1,12 @@
 package errors
 
-import "net/http"
+import (
+	"net/http"
+)
 
 // ApplicationError represents an application-specific error.
 type ApplicationError struct {
+	error
 	ErrorCode      string `json:"errorCode"`  // ErrorCode represents the error code associated with the application error.
 	Message        string `json:"message"`    // Message represents the error message associated with the application error.
 	HttpStatusCode int    `json:"statusCode"` // HttpStatusCode represents the HTTP status code associated with the application error.

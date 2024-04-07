@@ -1,9 +1,11 @@
 package services
 
 import (
+	appError "backendService/internals/common/errors"
 	"backendService/internals/modules/userModule/dto"
 	repository "backendService/internals/modules/userModule/repositories"
 	"errors"
+
 	"fmt"
 	"strconv"
 )
@@ -19,6 +21,8 @@ func NewUserService(userRepository *repository.User_Repository) *User_Service {
 	return &User_Service{userRepository: userRepository}
 }
 
+// CreateUser creates a new user with the provided user data.
+// It takes a CreateUserBody object as input and returns the created user and an error interface.
 func (us *User_Service) CreateUser(createUserData dto.CreateUserBody) (*repository.User, interface{}) {
 	userData := repository.User{
 		Name:     createUserData.Name,
@@ -35,17 +39,23 @@ func (us *User_Service) CreateUser(createUserData dto.CreateUserBody) (*reposito
 	return user, nil
 }
 
-func (us *User_Service) GetUserByID(id string) (*repository.User, error) {
+// GetUserByID retrieves a user from the repository based on the provided ID.
+// It takes an ID as a string parameter and returns a pointer to a User struct and an error.
+// If the ID cannot be parsed or the user is not found, an error is returned.
+func (us *User_Service) GetUserByID(id string) (*repository.User, *appError.ApplicationError) {
+	// log.Println("inside GetUserByID", id)
+
 	num, err := strconv.ParseUint(id, 10, 64)
+
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse user ID: %v", err)
+		return nil, appError.NewBadRequestError("invalid_id", "invalid user ID")
 	}
 	user, err := us.userRepository.FindByID(num)
 	if err != nil {
 		if errors.Is(err, repository.ErrUserNotFound) {
-			return nil, err
+			return nil, appError.NewNotFoundError("user_not_found", "user not found")
 		}
-		return nil, fmt.Errorf("failed to retrieve user: %v", err)
+		return nil, appError.NewApplicationError("internal_error", "failed to retrieve user")
 	}
 	return user, nil
 }
