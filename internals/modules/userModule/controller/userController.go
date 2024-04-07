@@ -46,7 +46,7 @@ func (uc *User_Controller) CreateUser(c *gin.Context) (router.Response, any) {
 	// 	return router.Response{}, errors.New("failed to parse request body")
 	// }
 
-	_, err := uc.TransformAndValidate(c, createData)
+	_, err := uc.TransformAndValidate(c, &createData)
 	if err != nil {
 		return router.Response{}, err
 	}

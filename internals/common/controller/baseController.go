@@ -1,8 +1,10 @@
 package controllers
 
 import (
+	"backendService/internals/common/errors"
 	"encoding/json"
 	"fmt"
+	"log"
 	"reflect"
 	"strings"
 
@@ -13,17 +15,19 @@ import (
 type BaseController struct{}
 
 // TransformAndValidate method transforms and validates the given data using the provided DTO struct.
-func (c *BaseController) TransformAndValidate(ctx *gin.Context, dtoStruct interface{}) (interface{}, []ValidationErrorData) {
+func (c *BaseController) TransformAndValidate(ctx *gin.Context, dtoStruct interface{}) (interface{}, any) {
 	if !c.shouldValidate(dtoStruct) {
 		return dtoStruct, nil
 	}
 
 	if err := ctx.ShouldBindJSON(dtoStruct); err != nil {
+		log.Println(err)
 		validationErrors := c.extractValidationErrors(err)
 		if len(validationErrors) > 0 {
-			return nil, c.newValidationError(validationErrors)
+			return nil, errors.NewUnprocessableEntityError("invalid_body", c.newValidationError(validationErrors))
 		}
-		return nil, []ValidationErrorData{{Message: "Invalid request body"}}
+		// return nil, errors.NewUnprocessableEntityError("invalid_body", err.Error())
+		return nil, err
 	}
 
 	return dtoStruct, nil
