@@ -3,8 +3,11 @@ package router
 import (
 	"backendService/internals/common/errors"
 	"backendService/internals/setup/server"
+	"log"
 	"net/http"
 	"time"
+
+	goError "github.com/go-errors/errors"
 
 	"github.com/gin-gonic/gin"
 )
@@ -79,6 +82,9 @@ func formatErrorResponse(c *gin.Context, statusCode int, err interface{}) {
 		errorCode = appErr.ErrorCode
 		message = appErr.Message
 	} else {
+		goErr := goError.Wrap(err, 2)
+		stackTrace := goErr.ErrorStack()
+		log.Println(stackTrace)
 		errorCode = "internal_server_error"
 		if server.Server.Config.App.Env == "development" {
 			message = err.(error).Error()

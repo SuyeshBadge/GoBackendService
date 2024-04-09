@@ -7,10 +7,10 @@ import (
 // ApplicationError represents an application-specific error.
 type ApplicationError struct {
 	error
-	ErrorCode      string `json:"errorCode"`  // ErrorCode represents the error code associated with the application error.
-	Message        string `json:"message"`    // Message represents the error message associated with the application error.
-	HttpStatusCode int    `json:"statusCode"` // HttpStatusCode represents the HTTP status code associated with the application error.
-	Err            error  `json:"error"`      // Err represents the underlying error associated with the application error.
+	ErrorCode      string      `json:"errorCode"`  // ErrorCode represents the error code associated with the application error.
+	Message        string      `json:"message"`    // Message represents the error message associated with the application error.
+	HttpStatusCode int         `json:"statusCode"` // HttpStatusCode represents the HTTP status code associated with the application error.
+	Err            interface{} `json:"error"`      // Err represents the underlying error associated with the application error.
 }
 
 // NewApplicationError creates an instance of ApplicationError with an errorCode, a message, and optional parameters.
@@ -38,12 +38,12 @@ func NewApplicationError(errorCode string, message string, parameters ...interfa
 		if !ok {
 			statusCode = http.StatusInternalServerError
 		}
-		err, _ := parameters[1].(error)
+
 		return &ApplicationError{
 			ErrorCode:      errorCode,
 			Message:        message,
 			HttpStatusCode: statusCode,
-			Err:            err,
+			Err:            parameters[1],
 		}
 	default:
 		return &ApplicationError{
