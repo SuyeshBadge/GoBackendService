@@ -77,29 +77,56 @@ func formatErrorResponse(c *gin.Context, statusCode int, err interface{}) {
 
 	var errorCode, message string
 
+	var validationError interface{}
+
+	// Check if the error is an ApplicationError
 	if appErr, ok := err.(*errors.ApplicationError); ok {
+		// If so, set the status code, error code, message, and validation error from the ApplicationError
 		statusCode = appErr.HttpStatusCode
 		errorCode = appErr.ErrorCode
 		message = appErr.Message
+		validationError = appErr.Err
 	} else {
+		// If not, wrap the error with goError and get the stack trace
 		goErr := goError.Wrap(err, 2)
 		stackTrace := goErr.ErrorStack()
+		// Log the stack trace
 		log.Println(stackTrace)
+		// Set a generic error code and message
 		errorCode = "internal_server_error"
+		// If in development environment, show the actual error message
 		if server.Server.Config.App.Env == "development" {
 			message = err.(error).Error()
 		} else {
+			// Otherwise, show a generic error message to the user
 			message = "Something went wrong. Please try again later."
 		}
+		// Create a new ApplicationError with the generic error code and message
 		err = errors.NewApplicationError(errorCode, message, http.StatusInternalServerError)
 
 	}
 
-	c.JSON(statusCode, gin.H{
-		"error":     gin.H{"errorCode": errorCode, "message": message},
-		"success":   false,
-		"timestamp": time.Now().Format(time.RFC3339),
-	})
+	// Check if the status code is 422 Unprocessable Entity
+	if statusCode == http.StatusUnprocessableEntity {
+		// If so, return a JSON response with detailed error information including validation errors
+		c.JSON(statusCode, gin.H{
+			"error": gin.H{
+				"errorCode": errorCode,       // Error code for the specific error
+				"message":   message,         // Error message describing the issue
+				"errors":    validationError, // Detailed validation error messages
+			},
+			"success":   false,                           // Indicate the operation was not successful
+			"timestamp": time.Now().Format(time.RFC3339), // Timestamp of the error occurrence
+		})
+	} else {
+		// For other status codes, return a JSON response with general error information
+		c.JSON(statusCode, gin.H{
+			"error":     gin.H{"errorCode": errorCode, "message": message}, // Error code and message
+			"success":   false,                                             // Indicate the operation was not successful
+			"timestamp": time.Now().Format(time.RFC3339),                   // Timestamp of the error occurrence
+		})
+	}
+
 }
 
 // formatSuccessResponse formats and sends a success response
