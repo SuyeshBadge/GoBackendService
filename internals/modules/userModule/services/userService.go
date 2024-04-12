@@ -54,7 +54,7 @@ func (us *User_Service) GetUserByID(id string) (*repository.User, *appError.Appl
 		return nil, appError.NewApplicationError("internal_error", "failed to retrieve user")
 	}
 	if user == nil {
-		return nil, appError.NewBadRequestError("user_not_found", "user not found")
+		return nil, appError.NewNotFoundError("user_not_found", "user not found")
 	}
 	return user, nil
 }
