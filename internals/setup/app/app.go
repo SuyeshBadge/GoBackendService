@@ -21,7 +21,7 @@ func Start() {
 	SetupAllRoutes(server.App)
 
 	// Running the application
-	server.Start()
 	logger.Info("app", "Start", "Application Started on port", config.Config.App.Port)
+	server.Start()
 
 }

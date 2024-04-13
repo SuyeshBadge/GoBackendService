@@ -36,6 +36,6 @@ func NewServer(config *config.AppConfig, db *database.Database) *server {
 
 func (s *server) Start() {
 	address := ":" + strconv.Itoa(config.Config.App.Port)
-	s.App.Run(address)
 	logger.Info("server", "Start", "Listening on", address)
+	s.App.Run(address)
 }

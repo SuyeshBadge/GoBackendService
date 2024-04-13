@@ -28,7 +28,7 @@ func (uc *User_Controller) GetUser(c *gin.Context) (router.Response, any) {
 	id := c.Param("id")
 	user, err := uc.userService.GetUserByID(id)
 	if err != nil {
-		logger.Error("controller", "user_controller", "GetUser", err)
+		logger.Error("controller", "user_controller", "GetUser", err.Message)
 		return router.Response{}, err
 	}
 	message := "User retrieved successfully"

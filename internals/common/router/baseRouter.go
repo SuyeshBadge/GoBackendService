@@ -4,6 +4,7 @@ import (
 	"backendService/internals/common/errors"
 	"backendService/internals/common/logger"
 	"backendService/internals/setup/server"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -103,6 +104,16 @@ func formatErrorResponse(c *gin.Context, statusCode int, err interface{}) {
 		err = errors.NewApplicationError(errorCode, message, http.StatusInternalServerError)
 
 	}
+	// Stringify the error details properly
+	errorDetails := fmt.Sprintf(`{"error_code": "%s", "message": "%s"}`, errorCode, message)
+	if validationError != nil {
+		errorDetails = fmt.Sprintf("%s, \"validation_errors\": %v", errorDetails, validationError)
+	}
+
+	// Log the error, omitting any sensitive data
+	logger.Error("router", "baseRouter", "formatErrorResponse", map[string]interface{}{
+		"error_details": errorDetails,
+	})
 
 	// Check if the status code is 422 Unprocessable Entity
 	if statusCode == http.StatusUnprocessableEntity {
