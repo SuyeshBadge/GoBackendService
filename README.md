@@ -1,6 +1,4 @@
-# Project Name
-
-## Go Backend Service
+# Go Backend Service
 
 This project is a web application built using Go programming language, Gin web framework, PostgreSQL as the database, and Redis for caching.
 
