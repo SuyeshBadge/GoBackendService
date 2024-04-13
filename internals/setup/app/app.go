@@ -1,6 +1,7 @@
 package app
 
 import (
+	"backendService/internals/common/logger"
 	"backendService/internals/setup/config"
 	"backendService/internals/setup/database"
 	"backendService/internals/setup/server"
@@ -21,5 +22,6 @@ func Start() {
 
 	// Running the application
 	server.Start()
+	logger.Info("app", "Start", "Application Started on port", config.Config.App.Port)
 
 }

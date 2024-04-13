@@ -1,9 +1,9 @@
 package database
 
 import (
+	"backendService/internals/common/logger"
 	"backendService/internals/setup/config"
 	"fmt"
-	"log"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
@@ -52,20 +52,19 @@ func Connect(config *dbConfig) error {
 	}
 
 	if err != nil {
-		log.Printf("Failed to connect to database: %v", err)
+		logger.Error("database", "Connect", "connect", err)
 		return err
 	}
 
 	// Db = Db.Debug() // Uncomment this line to see SQL queries
-	log.Printf("Connected to database :: %s", Db.Name())
-
+	logger.Info("database", "Connect", "Database connected", Db.Name())
 	dbConnection, _ := Db.DB()
 	dbConnection.SetMaxIdleConns(10)
 	dbConnection.SetMaxOpenConns(100)
 	dbConnection.SetConnMaxLifetime(300)
 
 	if err := dbConnection.Ping(); err != nil {
-		log.Printf("Failed to ping database: %v", err)
+		logger.Error("database", "Connect", "ping", err)
 		return err
 	}
 
@@ -73,7 +72,7 @@ func Connect(config *dbConfig) error {
 }
 
 func InitializeDataBase(databaseType string) error {
-	log.Println("Initializing database...")
+	logger.Info("database", "InitializeDatabase", "Initialize database with type ", databaseType)
 	config := dbConfig{
 		dbType:     databaseType,
 		dbHost:     config.Config.Database.Host,
@@ -84,15 +83,14 @@ func InitializeDataBase(databaseType string) error {
 	}
 
 	if err := Connect(&config); err != nil {
-		log.Fatal("Unable to connect database:", config.dbHost, ":", config.dbPort, "/", config.dbName)
+		logger.Error("database", "InitializeDatabase", "connect", err)
 		return err
 	}
-	log.Println("Database initialization completed.")
 	return nil
 }
 
 func CloseDB() {
-	log.Println("Closing database connection...")
+	logger.Info("database", "CloseDB", "Closing database connection")
 	dbConnection, _ := Db.DB()
 	defer dbConnection.Close()
 }

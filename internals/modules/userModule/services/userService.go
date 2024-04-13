@@ -42,7 +42,6 @@ func (us *User_Service) CreateUser(createUserData dto.CreateUserBody) (*reposito
 // It takes an ID as a string parameter and returns a pointer to a User struct and an error.
 // If the ID cannot be parsed or the user is not found, an error is returned.
 func (us *User_Service) GetUserByID(id string) (*repository.User, *appError.ApplicationError) {
-	// log.Println("inside GetUserByID", id)
 
 	num, err := strconv.ParseUint(id, 10, 64)
 
@@ -61,7 +60,6 @@ func (us *User_Service) GetUserByID(id string) (*repository.User, *appError.Appl
 
 // list of users
 func (us *User_Service) GetUsers() ([]repository.User, error) {
-	// log.Println(us.userRepository.GetTableName())
 	users, err := us.userRepository.FindAll(1, 10)
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve users: %v", err.Error())

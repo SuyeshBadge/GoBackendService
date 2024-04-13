@@ -4,7 +4,6 @@ import (
 	"backendService/internals/common/errors"
 	"encoding/json"
 	"fmt"
-	"log"
 	"reflect"
 	"strings"
 
@@ -21,7 +20,6 @@ func (c *BaseController) TransformAndValidate(ctx *gin.Context, dtoStruct interf
 	}
 
 	if err := ctx.ShouldBindJSON(dtoStruct); err != nil {
-		log.Println(err)
 		validationErrors := c.extractValidationErrors(err)
 		if len(validationErrors) > 0 {
 			return nil, errors.NewUnprocessableEntityError("invalid_body", c.newValidationError(validationErrors))
@@ -30,7 +28,6 @@ func (c *BaseController) TransformAndValidate(ctx *gin.Context, dtoStruct interf
 	}
 	validate := validator.New()
 	if err := validate.Struct(dtoStruct); err != nil {
-		log.Println(err)
 		validationErrors := c.extractValidationErrors(err)
 		if len(validationErrors) > 0 {
 			return nil, errors.NewUnprocessableEntityError("invalid_body", c.newValidationError(validationErrors))

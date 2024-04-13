@@ -2,8 +2,8 @@ package router
 
 import (
 	"backendService/internals/common/errors"
+	"backendService/internals/common/logger"
 	"backendService/internals/setup/server"
-	"log"
 	"net/http"
 	"time"
 
@@ -58,13 +58,11 @@ func handleWrapper(handler HandlerFunc) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer func() {
 			if err := recover(); err != nil {
-				// log.Println("inside handleWrapper2", err)
 				formatErrorResponse(c, http.StatusInternalServerError, err)
 			}
 		}()
 		data, err := handler(c)
 		if err != nil {
-			// log.Println("inside handleWrapper", err)
 			formatErrorResponse(c, http.StatusInternalServerError, err)
 		} else {
 			formatSuccessResponse(c, http.StatusOK, data.Data, data.Message)
@@ -91,7 +89,7 @@ func formatErrorResponse(c *gin.Context, statusCode int, err interface{}) {
 		goErr := goError.Wrap(err, 2)
 		stackTrace := goErr.ErrorStack()
 		// Log the stack trace
-		log.Println(stackTrace)
+		logger.Error("router", "baseRouter", "formatErrorResponse", err, stackTrace)
 		// Set a generic error code and message
 		errorCode = "internal_server_error"
 		// If in development environment, show the actual error message
