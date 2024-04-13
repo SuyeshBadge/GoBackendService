@@ -23,13 +23,7 @@ func NewUserService(userRepository *repository.User_Repository) *User_Service {
 // CreateUser creates a new user with the provided user data.
 // It takes a CreateUserBody object as input and returns the created user and an error interface.
 func (us *User_Service) CreateUser(createUserData dto.CreateUserBody) (*repository.User, interface{}) {
-	userData := repository.User{
-		Name:     createUserData.Name,
-		Age:      createUserData.Age,
-		Username: createUserData.UserName,
-		Password: createUserData.Password,
-		Mobile:   &createUserData.Mobile,
-	}
+	userData := repository.User{}
 
 	user, err := us.userRepository.Create(&userData)
 	if err != nil {

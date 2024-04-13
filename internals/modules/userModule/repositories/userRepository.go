@@ -2,18 +2,24 @@ package repository
 
 import (
 	"backendService/internals/common/repository"
+	"time"
 
+	"github.com/oklog/ulid"
 	"gorm.io/gorm"
 )
 
 // User represents a user entity.
 type User struct {
 	repository.BaseModel
-	Name     string  `json:"name"`             // Name of the user
-	Age      int     `json:"age"`              // Age of the user
-	Username string  `json:"username"`         // Username of the user
-	Password string  `json:"password"`         // Password of the user
-	Mobile   *string `json:"mobile,omitempty"` // Mobile number of the user (optional)
+	UserId          ulid.ULID  `json:"userId" gorm:"uniueIndex"`
+	Email           string     `json:"email" gorm:"uniqueIndex"`
+	DOB             *time.Time `json:"dob,omitempty" gorm:"type:timestamp"`
+	Password        string     `json:"password"`
+	FirstName       string     `json:"firstName"`
+	LastName        string     `json:"lastName" `
+	IsEmailVerified bool       `json:"isEmailVerified" gorm:"type:boolean"`
+	EmailVerifiedAt *time.Time `json:"emailVerifiedAt,omitempty" gorm:"type:timestamp"`
+	IsActive        bool       `json:"isActive" gorm:"type:boolean"`
 }
 
 // UserRepository represents a repository for managing user data.
