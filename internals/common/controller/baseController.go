@@ -14,17 +14,19 @@ import (
 type BaseController struct{}
 
 // TransformAndValidate method transforms and validates the given data using the provided DTO struct.
-func (c *BaseController) TransformAndValidate(ctx *gin.Context, dtoStruct interface{}) (interface{}, any) {
+func (c *BaseController) TransformAndValidate(ctx *gin.Context, dtoStruct interface{}) (interface{}, *errors.ApplicationError) {
 	if !c.shouldValidate(dtoStruct) {
 		return dtoStruct, nil
 	}
 
 	if err := ctx.ShouldBindJSON(dtoStruct); err != nil {
 		validationErrors := c.extractValidationErrors(err)
+		errorResponse := errors.NewUnprocessableEntityError("validation_failed", validationErrors)
+
 		if len(validationErrors) > 0 {
 			return nil, errors.NewUnprocessableEntityError("invalid_body", c.newValidationError(validationErrors))
 		}
-		return nil, err
+		return nil, errorResponse
 	}
 	validate := validator.New()
 	if err := validate.Struct(dtoStruct); err != nil {

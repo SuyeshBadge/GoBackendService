@@ -5,9 +5,12 @@ import (
 	"backendService/internals/modules/userModule/dto"
 	repository "backendService/internals/modules/userModule/repositories"
 
-	"fmt"
 	"strconv"
+
+	"github.com/oklog/ulid/v2"
 )
+
+type Filter = map[string]interface{}
 
 // UserService is a struct that represents the service for the user model
 type User_Service struct {
@@ -22,14 +25,36 @@ func NewUserService(userRepository *repository.User_Repository) *User_Service {
 
 // CreateUser creates a new user with the provided user data.
 // It takes a CreateUserBody object as input and returns the created user and an error interface.
-func (us *User_Service) CreateUser(createUserData dto.CreateUserBody) (*repository.User, interface{}) {
-	userData := repository.User{}
+func (us *User_Service) CreateUser(createUserData dto.CreateUserBody) (*repository.User, *appError.ApplicationError) {
+	// Generate a new UUID for the user ID
+	userId := ulid.Make()
 
-	user, err := us.userRepository.Create(&userData)
+	exixtingUser, err := us.userRepository.FindOneBy(Filter{
+		"email": createUserData.Email,
+	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to create user: %v", err)
+		return nil, appError.NewApplicationError("internal_error", "failed to find user")
 	}
-	return user, nil
+	if exixtingUser != nil {
+		return nil, appError.NewApplicationError("user_exists", "user with this email already exists")
+	}
+
+	// Map the request data to a User struct
+	user := &repository.User{
+		UserId:    userId,
+		FirstName: createUserData.FirstName,
+		LastName:  createUserData.LastName,
+		Email:     createUserData.Email,
+		Password:  createUserData.Password,
+		DOB:       createUserData.DOB,
+		Mobile:    createUserData.Mobile,
+		IsActive:  true,
+	}
+	createdUser, err := us.userRepository.Create(user)
+	if err != nil {
+		return nil, appError.NewApplicationError("internal_error", "failed to create user")
+	}
+	return createdUser, nil
 }
 
 // GetUserByID retrieves a user from the repository based on the provided ID.
@@ -53,10 +78,10 @@ func (us *User_Service) GetUserByID(id string) (*repository.User, *appError.Appl
 }
 
 // list of users
-func (us *User_Service) GetUsers() ([]repository.User, error) {
+func (us *User_Service) GetUsers() ([]repository.User, *appError.ApplicationError) {
 	users, err := us.userRepository.FindAll(1, 10)
 	if err != nil {
-		return nil, fmt.Errorf("failed to retrieve users: %v", err.Error())
+		return nil, appError.NewBadRequestError("internal_error", "failed to retrieve users")
 	}
 	return users, nil
 

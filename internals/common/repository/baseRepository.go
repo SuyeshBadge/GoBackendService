@@ -11,6 +11,7 @@ import (
 
 const defaultPageSize = 10
 
+
 // BaseModel represents the base model for all entities in the repository.
 type BaseModel struct {
 	ID        uint64         `gorm:"primary_key" json:"id"`

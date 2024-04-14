@@ -4,7 +4,7 @@ import (
 	"backendService/internals/common/repository"
 	"time"
 
-	"github.com/oklog/ulid"
+	"github.com/oklog/ulid/v2"
 	"gorm.io/gorm"
 )
 
@@ -20,6 +20,8 @@ type User struct {
 	IsEmailVerified bool       `json:"isEmailVerified" gorm:"type:boolean"`
 	EmailVerifiedAt *time.Time `json:"emailVerifiedAt,omitempty" gorm:"type:timestamp"`
 	IsActive        bool       `json:"isActive" gorm:"type:boolean"`
+	Mobile          *string    `json:"mobile"`
+	IsMoileVerified bool       `json:"isMobileVerified" gorm:"type:boolean"`
 }
 
 // UserRepository represents a repository for managing user data.
