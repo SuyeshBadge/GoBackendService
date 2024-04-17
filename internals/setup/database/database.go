@@ -71,6 +71,7 @@ func Connect(config *dbConfig) error {
 	return nil
 }
 
+
 func InitializeDataBase(databaseType string) error {
 	logger.Info("database", "InitializeDatabase", "Initialize database with type ", databaseType)
 	config := dbConfig{

@@ -1,4 +1,4 @@
-package controller
+package userController
 
 import (
 	"github.com/gin-gonic/gin"
@@ -8,22 +8,22 @@ import (
 	"backendService/internals/common/logger"
 	"backendService/internals/common/router"
 	"backendService/internals/modules/userModule/dto"
-	"backendService/internals/modules/userModule/services"
+	"backendService/internals/modules/userModule/userService"
 )
 
-type User_Controller struct {
+type UserController struct {
 	controllers.BaseController
-	userService *services.User_Service
+	userService *userService.UserService
 }
 
 // NewUserController creates a new instance of User_Controller with a provided userService
 // dependency.
-func NewUserController(userService *services.User_Service) *User_Controller {
-	return &User_Controller{userService: userService}
+func NewUserController(userService *userService.UserService) *UserController {
+	return &UserController{userService: userService}
 }
 
 // GetUser retrieves a user from the database.
-func (uc *User_Controller) GetUser(c *gin.Context) (router.Response, *errors.ApplicationError) {
+func (uc *UserController) GetUser(c *gin.Context) (router.Response, *errors.ApplicationError) {
 	id := c.Param("id")
 	user, err := uc.userService.GetUserByID(id)
 	if err != nil {
@@ -39,7 +39,7 @@ func (uc *User_Controller) GetUser(c *gin.Context) (router.Response, *errors.App
 
 // CreateUser handles the creation of a user. It reads the request body, parses it into a CreateUserData struct,
 // and passes the data to the UserService's CreateUser method. CreateUser validates the request body and creates a new user.
-func (uc *User_Controller) CreateUser(c *gin.Context) (router.Response, *errors.ApplicationError) {
+func (uc *UserController) CreateUser(c *gin.Context) (router.Response, *errors.ApplicationError) {
 	var createData dto.CreateUserBody
 	// if err := c.ShouldBindJSON(&createData); err != nil {
 	// 	return router.Response{}, errors.New("failed to parse request body")
@@ -60,7 +60,7 @@ func (uc *User_Controller) CreateUser(c *gin.Context) (router.Response, *errors.
 }
 
 // GetAllUsers retrieves all users from the database.
-func (uc *User_Controller) GetAllUsers(c *gin.Context) (router.Response, *errors.ApplicationError) {
+func (uc *UserController) GetAllUsers(c *gin.Context) (router.Response, *errors.ApplicationError) {
 	users, err := uc.userService.GetUsers()
 	if err != nil {
 		return router.Response{}, err

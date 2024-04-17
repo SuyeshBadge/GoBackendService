@@ -1,9 +1,9 @@
-package services
+package userService
 
 import (
 	appError "backendService/internals/common/errors"
 	"backendService/internals/modules/userModule/dto"
-	repository "backendService/internals/modules/userModule/repositories"
+	repository "backendService/internals/modules/userModule/userRepository"
 
 	"strconv"
 
@@ -13,19 +13,19 @@ import (
 type Filter = map[string]interface{}
 
 // UserService is a struct that represents the service for the user model
-type User_Service struct {
-	userRepository *repository.User_Repository
+type UserService struct {
+	userRepository *repository.UserRepository
 }
 
 // NewUserService creates a new instance of UserService.
 // It takes a pointer to a UserRepository and returns a pointer to UserService.
-func NewUserService(userRepository *repository.User_Repository) *User_Service {
-	return &User_Service{userRepository: userRepository}
+func NewUserService(userRepository *repository.UserRepository) *UserService {
+	return &UserService{userRepository: userRepository}
 }
 
 // CreateUser creates a new user with the provided user data.
 // It takes a CreateUserBody object as input and returns the created user and an error interface.
-func (us *User_Service) CreateUser(createUserData dto.CreateUserBody) (*repository.User, *appError.ApplicationError) {
+func (us *UserService) CreateUser(createUserData dto.CreateUserBody) (*repository.User, *appError.ApplicationError) {
 	// Generate a new UUID for the user ID
 	userId := ulid.Make()
 
@@ -44,8 +44,8 @@ func (us *User_Service) CreateUser(createUserData dto.CreateUserBody) (*reposito
 		UserId:    userId,
 		FirstName: createUserData.FirstName,
 		LastName:  createUserData.LastName,
-		Email:     createUserData.Email,
-		Password:  createUserData.Password,
+		Email:     &createUserData.Email,
+		Password:  &createUserData.Password,
 		DOB:       createUserData.DOB,
 		Mobile:    createUserData.Mobile,
 		IsActive:  true,
@@ -60,7 +60,7 @@ func (us *User_Service) CreateUser(createUserData dto.CreateUserBody) (*reposito
 // GetUserByID retrieves a user from the repository based on the provided ID.
 // It takes an ID as a string parameter and returns a pointer to a User struct and an error.
 // If the ID cannot be parsed or the user is not found, an error is returned.
-func (us *User_Service) GetUserByID(id string) (*repository.User, *appError.ApplicationError) {
+func (us *UserService) GetUserByID(id string) (*repository.User, *appError.ApplicationError) {
 
 	num, err := strconv.ParseUint(id, 10, 64)
 
@@ -78,7 +78,7 @@ func (us *User_Service) GetUserByID(id string) (*repository.User, *appError.Appl
 }
 
 // list of users
-func (us *User_Service) GetUsers() ([]repository.User, *appError.ApplicationError) {
+func (us *UserService) GetUsers() ([]repository.User, *appError.ApplicationError) {
 	users, err := us.userRepository.FindAll(1, 10)
 	if err != nil {
 		return nil, appError.NewBadRequestError("internal_error", "failed to retrieve users")

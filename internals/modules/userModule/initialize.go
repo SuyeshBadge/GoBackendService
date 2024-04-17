@@ -1,23 +1,23 @@
 package userModule
 
 import (
-	"backendService/internals/modules/userModule/controller"
-	repository "backendService/internals/modules/userModule/repositories"
 	userModule "backendService/internals/modules/userModule/routes"
-	"backendService/internals/modules/userModule/services"
+	"backendService/internals/modules/userModule/userController"
+	repository "backendService/internals/modules/userModule/userRepository"
+	"backendService/internals/modules/userModule/userService"
 	"backendService/internals/setup/server"
 )
 
 var (
-	UserRouter  *userModule.User_Router
-	UserService *services.User_Service
+	UserRouter  *userModule.UserRouter
+	UserService *userService.UserService
 )
 
 func Initialize() {
 
 	userRepository := repository.NewUserRepository(server.Server.Db)
-	userService := services.NewUserService(userRepository)
-	userController := controller.NewUserController(userService)
+	userService := userService.NewUserService(userRepository)
+	userController := userController.NewUserController(userService)
 	userRouter := userModule.NewUserRouter(userController)
 
 	// Export
