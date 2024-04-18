@@ -7,7 +7,7 @@ import (
 	"backendService/internals/common/errors"
 	"backendService/internals/common/logger"
 	"backendService/internals/common/router"
-	"backendService/internals/modules/userModule/dto"
+	"backendService/internals/modules/userModule/userModule"
 	"backendService/internals/modules/userModule/userService"
 )
 
@@ -40,7 +40,7 @@ func (uc *UserController) GetUser(c *gin.Context) (router.Response, *errors.Appl
 // CreateUser handles the creation of a user. It reads the request body, parses it into a CreateUserData struct,
 // and passes the data to the UserService's CreateUser method. CreateUser validates the request body and creates a new user.
 func (uc *UserController) CreateUser(c *gin.Context) (router.Response, *errors.ApplicationError) {
-	var createData dto.CreateUserBody
+	var createData userModule.CreateUserBody
 	// if err := c.ShouldBindJSON(&createData); err != nil {
 	// 	return router.Response{}, errors.New("failed to parse request body")
 	// }

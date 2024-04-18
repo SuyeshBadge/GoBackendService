@@ -2,7 +2,7 @@ package userService
 
 import (
 	appError "backendService/internals/common/errors"
-	"backendService/internals/modules/userModule/dto"
+	"backendService/internals/modules/userModule/userModule"
 	repository "backendService/internals/modules/userModule/userRepository"
 
 	"strconv"
@@ -25,7 +25,7 @@ func NewUserService(userRepository *repository.UserRepository) *UserService {
 
 // CreateUser creates a new user with the provided user data.
 // It takes a CreateUserBody object as input and returns the created user and an error interface.
-func (us *UserService) CreateUser(createUserData dto.CreateUserBody) (*repository.User, *appError.ApplicationError) {
+func (us *UserService) CreateUser(createUserData userModule.CreateUserBody) (*repository.User, *appError.ApplicationError) {
 	// Generate a new UUID for the user ID
 	userId := ulid.Make()
 
