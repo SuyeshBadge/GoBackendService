@@ -27,7 +27,7 @@ func (ac *AuthController) OtpSignUp(c *gin.Context) (router.Response, *errors.Ap
 		return router.Response{}, err
 	}
 
-	_, err = ac.authService.OtpSignUp(signupData)
+	_, err = ac.authService.VerifyOtp(signupData)
 
 	if err != nil {
 		return router.Response{}, err

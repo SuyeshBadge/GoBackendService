@@ -18,7 +18,6 @@ type OtpService struct {
 }
 
 type OtpSendRequest struct {
-	Key       string
 	Recipient string
 }
 
@@ -37,11 +36,10 @@ func (os *OtpService) SendOtp(req OtpSendRequest) (bool, *errors.ApplicationErro
 	otp := generateOtp(length)
 
 	// Extract necessary data from the request
-	key := req.Key
 	recipient := req.Recipient
 
 	// Save OTP in cache for a specific time frame
-	os.saveOtpInCache(key, otp)
+	os.saveOtpInCache(recipient, otp)
 
 	// Send OTP to the user
 	err := os.sendOtpToUser(recipient, otp)
