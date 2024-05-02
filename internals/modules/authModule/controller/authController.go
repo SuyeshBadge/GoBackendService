@@ -36,15 +36,15 @@ func (ac *AuthController) SendOtp(c *gin.Context) (router.Response, *errors.Appl
 	return response, nil
 }
 
-func (ac *AuthController) OtpSignUp(c *gin.Context) (router.Response, *errors.ApplicationError) {
-	var signupData authModule.OtpVerifyBody
-	_, err := ac.TransformAndValidate(c, &signupData)
+func (ac *AuthController) VerifyOtp(c *gin.Context) (router.Response, *errors.ApplicationError) {
+	var signUpData authModule.OtpVerifyBody
+	_, err := ac.TransformAndValidate(c, &signUpData)
 
 	if err != nil {
 		return router.Response{}, err
 	}
 
-	_, err = ac.authService.VerifyOtp(signupData)
+	_, err = ac.authService.VerifyOtp(signUpData)
 
 	if err != nil {
 		return router.Response{}, err
