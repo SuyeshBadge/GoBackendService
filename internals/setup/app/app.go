@@ -1,6 +1,7 @@
 package app
 
 import (
+	"backendService/internals/common/cache"
 	"backendService/internals/common/logger"
 	"backendService/internals/setup/config"
 	"backendService/internals/setup/database"
@@ -13,6 +14,8 @@ func Start() {
 
 	// Setup Database
 	database.InitializeDataBase(config.Config.Database.Type)
+	// Setup Cache
+	cache.InitializeCacheService()
 
 	// Setting up server
 	server := server.NewServer(&config.Config, database.Db)

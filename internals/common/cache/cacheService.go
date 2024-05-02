@@ -1,8 +1,11 @@
 package cache
 
 import (
+	"backendService/internals/common/logger"
+	"backendService/internals/setup/config"
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -12,14 +15,30 @@ type CacheService struct {
 	client *redis.Client
 }
 
+type CacheConfig struct {
+	Hostname string
+	Port     int
+	Password string
+	Database int
+}
+
 // NewCacheService creates a new CacheService instance that uses the provided Redis connection details.
 // The CacheService provides a set of methods for interacting with a Redis cache.
-func NewCacheService(addr string, password string, db int) *CacheService {
-	client := redis.NewClient(&redis.Options{
-		Addr:     addr,
-		Password: password,
-		DB:       db,
-	})
+func NewCacheService(addr string, password *string, db int) *CacheService {
+	var client *redis.Client
+	if *password == "" {
+		client = redis.NewClient(&redis.Options{
+			Addr: addr,
+			DB:   db,
+		})
+	} else {
+		client = redis.NewClient(&redis.Options{
+			Addr:     addr,
+			// Password: *password,
+			DB:       db,
+		})
+	}
+
 	return &CacheService{client: client}
 }
 
@@ -73,4 +92,24 @@ func (c *CacheService) Decrement(ctx context.Context, key string) error {
 // Close closes the underlying cache client connection.
 func (c *CacheService) Close() error {
 	return c.client.Close()
+}
+
+//Export single instance of cache service
+
+var Cache CacheService
+
+// Write a proper singleton implementation for cache service
+
+func InitializeCacheService() {
+	host := config.Config.Cache.Hostname
+	port := config.Config.Cache.Port
+	password := config.Config.Cache.Password
+	db := config.Config.Cache.Database
+
+	Cache = *NewCacheService(fmt.Sprintf("%s:%d", host, port), &password, db)
+
+	status := Cache.client.Ping(context.Background())
+
+	logger.Info("Cache", "InitializeCacheService", "Ping", status)
+
 }

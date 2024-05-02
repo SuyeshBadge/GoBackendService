@@ -12,5 +12,11 @@
     "env": "development",
     "log_level": "debug",
     "gin_mode": "debug"
+  },
+  "cache": {
+    "hostname": "localhost",
+    "port": 6379,
+    "password": "",
+    "database": 0
   }
 }

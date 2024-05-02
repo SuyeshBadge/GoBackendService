@@ -1,6 +1,7 @@
 package authModule
 
 import (
+	"backendService/internals/common/cache"
 	authController "backendService/internals/modules/authModule/controller"
 	authRoutes "backendService/internals/modules/authModule/routes"
 	authService "backendService/internals/modules/authModule/service"
@@ -13,7 +14,8 @@ var (
 )
 
 func Initialize() {
-	authService := authService.NewAuthService(*userModule.UserService)
+	otpService := authService.NewOtpService(cache.Cache)
+	authService := authService.NewAuthService(*userModule.UserService, *otpService)
 	authController := authController.NewAuthController(*authService)
 	authRouter := authRoutes.NewAuthRoutes(authController)
 

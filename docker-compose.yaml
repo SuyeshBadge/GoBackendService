@@ -1,11 +1,11 @@
-version: "3"
+version: '3'
 services:
   server:
     build:
       context: .
       dockerfile: dev.Dockerfile # Specify the dev Dockerfile
     ports:
-      - "8100:8100"
+      - '8100:8100'
     volumes:
       - .:/app
     environment:
@@ -13,6 +13,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
     networks:
       - internal-net
 
@@ -30,14 +32,25 @@ services:
     expose:
       - 5432
     ports:
-      - "5432:5432"
+      - '5432:5432'
     healthcheck:
-      test: ["CMD", "pg_isready"]
+      test: ['CMD', 'pg_isready']
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
       - internal-net
+
+  redis:
+    image: redis
+    restart: always
+    expose:
+      - 6379
+    ports:
+      - '6377:6379'
+    networks:
+      - internal-net
+
 volumes:
   db-data:
 secrets:

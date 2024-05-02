@@ -19,6 +19,23 @@ func NewAuthController(authService authService.AuthService) *AuthController {
 	return &AuthController{authService: authService}
 }
 
+func (ac *AuthController) SendOtp(c *gin.Context) (router.Response, *errors.ApplicationError) {
+	var sendOtpData authModule.OtpSendBody
+	_, err := ac.TransformAndValidate(c, &sendOtpData)
+
+	if err != nil {
+		return router.Response{}, err
+	}
+
+	_, err = ac.authService.SendOtp(sendOtpData)
+
+	if err != nil {
+		return router.Response{}, err
+	}
+	response := router.Response{Message: "OTP sent successfully"}
+	return response, nil
+}
+
 func (ac *AuthController) OtpSignUp(c *gin.Context) (router.Response, *errors.ApplicationError) {
 	var signupData authModule.OtpVerifyBody
 	_, err := ac.TransformAndValidate(c, &signupData)

@@ -1,5 +1,11 @@
 {
   "database": {
     "type": "sqlite"
+  },
+  "cache": {
+    "hostname": "redis",
+    "port": 6379,
+    "password": "default_password",
+    "database": 0
   }
 }

@@ -22,7 +22,7 @@ func (ar *AuthRoutes) SetupRoutes(app *gin.Engine) {
 
 	authRouter := router.Group("api/v1/auth")
 	{
-		authRouter.POST("/signup/otp", ar.AuthController.OtpSignUp)
+		authRouter.POST("/otp/send", ar.AuthController.SendOtp)
 	}
 
 	// authRouter.POST("/signup/otp", ar.AuthController.OtpSignUp)
