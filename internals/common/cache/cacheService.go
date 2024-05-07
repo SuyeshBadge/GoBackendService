@@ -33,9 +33,9 @@ func NewCacheService(addr string, password *string, db int) *CacheService {
 		})
 	} else {
 		client = redis.NewClient(&redis.Options{
-			Addr:     addr,
+			Addr: addr,
 			// Password: *password,
-			DB:       db,
+			DB: db,
 		})
 	}
 
@@ -110,6 +110,6 @@ func InitializeCacheService() {
 
 	status := Cache.client.Ping(context.Background())
 
-	logger.Info("Cache", "InitializeCacheService", "Ping", status)
+	logger.Info("cache", "CacheService", "InitializeCacheService", status)
 
 }
